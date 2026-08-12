@@ -1381,6 +1381,96 @@ function confirmar(title, msg, onYes, labelYes) {
     `<button class="btn" data-close="1">Cancelar</button><button class="btn btn-w" id="cf-yes">${labelYes || 'Confirmar'}</button>`,
     () => { $('#cf-yes').onclick = () => { closeModal(); onYes(); }; });
 }
+function confirmarTexto(title, msg, palavra, onYes) {
+  openModal(title, `<p style="margin:0 0 14px;color:var(--txt-2)">${msg}</p>
+    <div class="field"><label>Digite <b>${esc(palavra)}</b> para confirmar</label>
+      <input class="inp" id="cf-txt" autocomplete="off"></div>`,
+    `<button class="btn" data-close="1">Cancelar</button><button class="btn btn-w" id="cf-ok" disabled>Excluir definitivamente</button>`,
+    root => {
+      const inp = $('#cf-txt'), bt = $('#cf-ok');
+      inp.oninput = () => { bt.disabled = inp.value.trim().toLowerCase() !== String(palavra).toLowerCase(); };
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !bt.disabled) bt.click(); });
+      bt.onclick = () => { closeModal(); onYes(); };
+      inp.focus();
+    });
+}
+
+/* Exclusões com verificação de uso — evita apagar algo que quebraria o histórico */
+function excluirAtleta(id) {
+  const a = Q.one('athletes', id); if (!a) return;
+  const duplas = Q.teams().filter(t => t.athlete1Id === id || t.athlete2Id === id);
+  if (duplas.length) {
+    toast(`${a.name} está em ${duplas.length} dupla(s). Exclua as duplas antes.`, 'err');
+    return;
+  }
+  confirmar('Excluir atleta', `Excluir <b>${esc(a.name)}</b>? Os pontos dele no ranking também serão removidos.`, () => {
+    DB.ranking_points = DB.ranking_points.filter(p => p.athleteId !== id);
+    DB.athletes = DB.athletes.filter(x => x.id !== id);
+    log('atleta', 'Excluiu ' + a.name); saveDB(); render(); toast('Atleta excluído.', 'ok');
+  }, 'Excluir');
+}
+function excluirDupla(id) {
+  const t = Q.one('teams', id); if (!t) return;
+  const nome = Q.teamName(id);
+  const comChave = Q.tournaments().filter(x => (x.teamIds || []).includes(id) && x.bracketGenerated);
+  if (comChave.length) {
+    toast(`Esta dupla está na chave de ${comChave.length} torneio(s). Remova a inscrição antes.`, 'err');
+    return;
+  }
+  confirmar('Excluir dupla', `Excluir a dupla <b>${esc(nome)}</b>? Os atletas continuam cadastrados.`, () => {
+    DB.tournaments.forEach(x => { if (x.teamIds) x.teamIds = x.teamIds.filter(i => i !== id); });
+    DB.teams = DB.teams.filter(x => x.id !== id);
+    log('dupla', 'Excluiu a dupla ' + nome); saveDB(); render(); toast('Dupla excluída.', 'ok');
+  }, 'Excluir');
+}
+function excluirArena(id) {
+  const a = Q.one('arenas', id); if (!a) return;
+  const tours = Q.tournaments().filter(t => t.arenaId === id);
+  if (tours.length) {
+    toast(`Esta arena tem ${tours.length} torneio(s). Exclua os torneios antes.`, 'err');
+    return;
+  }
+  const quadras = Q.courts().filter(c => c.arenaId === id).length;
+  confirmar('Excluir arena', `Excluir <b>${esc(a.name)}</b> e as ${quadras} quadra(s) dela?`, () => {
+    DB.courts = DB.courts.filter(c => c.arenaId !== id);
+    DB.arenas = DB.arenas.filter(x => x.id !== id);
+    log('arena', 'Excluiu a arena ' + a.name); saveDB(); render(); toast('Arena excluída.', 'ok');
+  }, 'Excluir');
+}
+function excluirTorneio(id) {
+  const t = Q.one('tournaments', id); if (!t) return;
+  const jogos = DB.matches.filter(m => m.tournamentId === id).length;
+  confirmarTexto('Excluir torneio', `Isso remove <b>${esc(t.name)}</b>, ${jogos} partida(s), a classificação e os pontos que ele gerou no ranking. Atletas e duplas continuam cadastrados.`,
+    'excluir', () => {
+      DB.matches = DB.matches.filter(m => m.tournamentId !== id);
+      DB.ranking_points = DB.ranking_points.filter(p => p.tournamentId !== id);
+      DB.tournaments = DB.tournaments.filter(x => x.id !== id);
+      log('torneio', 'Excluiu ' + t.name); saveDB();
+      go('#/org/torneios'); render(); toast('Torneio excluído.', 'ok');
+    });
+}
+async function excluirOrganizador(id) {
+  const o = DB.organizations.find(x => x.id === id); if (!o) return;
+  const s = orgStats(id, {});
+  confirmarTexto('Excluir organizador', `Isso apaga <b>${esc(o.name)}</b> e tudo que é dele: ${s.arenas} arena(s), ${s.tournaments} torneio(s), ${num(s.athletes)} atleta(s) e todos os acessos. Não dá para desfazer.`,
+    o.name, async () => {
+      const usuarios = DB.users.filter(u => u.organizationId === id);
+      if (Nuvem.pronto) {
+        for (const u of usuarios) {
+          try { await Nuvem.funcao('criar-acesso', { acao: 'remover', userId: u.id }); }
+          catch (e) { toast('Não consegui remover o acesso ' + u.login + ': ' + e.message, 'err'); }
+        }
+      }
+      ['arenas', 'courts', 'athletes', 'teams', 'tournaments', 'matches', 'ranking_points'].forEach(tab => {
+        DB[tab] = DB[tab].filter(r => r.organizationId !== id);
+      });
+      DB.users = DB.users.filter(u => u.organizationId !== id);
+      DB.organizations = DB.organizations.filter(x => x.id !== id);
+      log('organizador', 'Excluiu ' + o.name, null); saveDB(); render();
+      toast(o.name + ' foi excluído.', 'ok');
+    });
+}
+
 /* Construtor de formulário: campos = [{k,label,type,opts,req,val,ph,hint,half}] */
 function formHTML(campos) {
   let out = '<div class="grid" style="grid-template-columns:1fr 1fr;gap:0 14px">';
@@ -1785,6 +1875,7 @@ function mOrganizadores(app) {
         <button class="btn btn-s" data-acesso="${o.id}">${u ? 'Acesso' : 'Criar acesso'}</button>
         <button class="btn btn-s" data-edit="${o.id}">Editar</button>
         <button class="btn btn-s" data-tog="${o.id}">${o.status === 'inativo' ? 'Ativar' : 'Desativar'}</button>
+        <button class="btn btn-s" data-del-org="${o.id}" title="Excluir">✕</button>
       </td></tr>`;
   }).join('');
   const html = DB.organizations.length ? `<div class="card"><div class="tbl-wrap"><table class="tbl">
@@ -1799,6 +1890,7 @@ function mOrganizadores(app) {
   $$('[data-enter]').forEach(b => b.onclick = () => Sess.enterOrg(b.dataset.enter));
   $$('[data-edit]').forEach(b => b.onclick = () => formOrganizador(DB.organizations.find(o => o.id === b.dataset.edit)));
   $$('[data-acesso]').forEach(b => b.onclick = () => formAcesso(DB.organizations.find(o => o.id === b.dataset.acesso)));
+  $$('[data-del-org]').forEach(b => b.onclick = () => excluirOrganizador(b.dataset.delOrg));
   $$('[data-tog]').forEach(b => b.onclick = () => {
     const o = DB.organizations.find(x => x.id === b.dataset.tog);
     o.status = o.status === 'inativo' ? 'ativo' : 'inativo';
@@ -2106,13 +2198,15 @@ function oArenas(app) {
         <div><div class="mut-s">Jogos</div><b class="num" style="font-size:17px">${num(s.matches)}</b></div></div>
       <div class="btn-row"><button class="btn btn-s" data-ed="${a.id}">Editar</button>
         <a class="btn btn-s" href="#/org/quadras">Quadras</a>
-        <a class="btn btn-s btn-d" href="#/arena/${a.id}" target="_blank">Página pública</a></div>
+        <a class="btn btn-s btn-d" href="#/arena/${a.id}" target="_blank">Página pública</a>
+        <button class="btn btn-s" data-del-arn="${a.id}" title="Excluir">✕</button></div>
     </div></div>`;
   }).join('')}</div>` : vazio('⬒', 'Nenhuma arena cadastrada', 'A arena é o ponto de partida: é ela que recebe os torneios e concentra as estatísticas.',
     '<button class="btn btn-p" id="nv2">+ Cadastrar arena</button>');
   shell(app, MENU_ORG, 'arenas', 'Minhas arenas', esc(Sess.org().name), `<button class="btn btn-p" id="nv">+ Adicionar arena</button>`, html);
   $('#nv').onclick = () => formArena(); if ($('#nv2')) $('#nv2').onclick = () => formArena();
   $$('[data-ed]').forEach(b => b.onclick = () => formArena(Q.one('arenas', b.dataset.ed)));
+  $$('[data-del-arn]').forEach(b => b.onclick = () => excluirArena(b.dataset.delArn));
 }
 /* ---------- QUADRAS ---------- */
 function oQuadras(app) {
@@ -2178,13 +2272,15 @@ function oAtletas(app) {
       <td>${esc(a.category || '—')}</td><td class="num">${num(r.pontos)}</td><td class="num">${r.torneios}</td>
       <td class="num">${r.jogos}</td><td class="num">${r.apr}%</td><td class="num">${r.titulos}</td>
       <td class="right nowrap"><a class="btn btn-s" href="#/atleta/${a.id}" target="_blank">Perfil</a>
-        <button class="btn btn-s" data-ed="${a.id}">Editar</button></td></tr>`; }).join('')}
+        <button class="btn btn-s" data-ed="${a.id}">Editar</button>
+        <button class="btn btn-s" data-del-atl="${a.id}" title="Excluir">✕</button></td></tr>`; }).join('')}
     </tbody></table></div></div>` : vazio('✦', 'Nenhum atleta na sua base', 'Cadastre os atletas uma vez: eles seguem entre torneios e arenas com o histórico preservado.',
       '<button class="btn btn-p" id="nv2">+ Cadastrar atleta</button>');
   shell(app, MENU_ORG, 'atletas', 'Meus atletas', esc(Sess.org().name),
     `<button class="btn" id="import">Importar lista</button><button class="btn btn-p" id="nv">+ Novo atleta</button>`, html);
   $('#nv').onclick = () => formAtleta(); if ($('#nv2')) $('#nv2').onclick = () => formAtleta();
   $$('[data-ed]').forEach(b => b.onclick = () => formAtleta(Q.one('athletes', b.dataset.ed)));
+  $$('[data-del-atl]').forEach(b => b.onclick = () => excluirAtleta(b.dataset.delAtl));
   if ($('#busca')) $('#busca').oninput = e => {
     const v = e.target.value.toLowerCase();
     $$('#corpo tr').forEach(tr => tr.style.display = tr.dataset.nome.includes(v) ? '' : 'none');
@@ -2265,13 +2361,15 @@ function oDuplas(app) {
       const r = teamRecord(t.id), nt = Q.tournaments().filter(x => (x.teamIds || []).includes(t.id)).length;
       return `<tr><td><b>${esc(t.name || Q.teamName(t.id))}</b>${t.name ? `<div class="mut-s">${esc(Q.teamName(t.id))}</div>` : ''}</td>
       <td class="num">${nt}</td><td class="num">${r.jogos}</td><td class="num">${r.v}</td><td class="num">${r.apr}%</td>
-      <td class="right"><button class="btn btn-s" data-ed="${t.id}">Editar</button></td></tr>`;
+      <td class="right nowrap"><button class="btn btn-s" data-ed="${t.id}">Editar</button>
+        <button class="btn btn-s" data-del-dup="${t.id}" title="Excluir">✕</button></td></tr>`;
     }).join('')}</tbody></table></div></div>`
     : vazio('❖', 'Nenhuma dupla formada', 'Uma dupla pode disputar vários torneios, e o mesmo atleta pode ter parceiros diferentes em cada um.',
       '<button class="btn btn-p" id="nv2">+ Criar dupla</button>');
   shell(app, MENU_ORG, 'duplas', 'Minhas duplas', esc(Sess.org().name), `<button class="btn btn-p" id="nv">+ Nova dupla</button>`, html);
   $('#nv').onclick = () => formDupla(); if ($('#nv2')) $('#nv2').onclick = () => formDupla();
   $$('[data-ed]').forEach(b => b.onclick = () => formDupla(Q.one('teams', b.dataset.ed)));
+  $$('[data-del-dup]').forEach(b => b.onclick = () => excluirDupla(b.dataset.delDup));
 }
 
 /* ---------- TORNEIOS ---------- */
@@ -2353,7 +2451,9 @@ function oTorneio(app, params) {
     `<a class="btn" href="#/t/${t.slug}" target="_blank">Página pública</a>
      <a class="btn" href="#/tv/${t.slug}" target="_blank">Telão</a>
      <button class="btn btn-d" id="ed-t">Editar</button>
+     <button class="btn btn-w" id="del-t">Excluir</button>
      ${ms.length ? '<button class="btn btn-p" id="gerar">Regerar chave</button>' : '<button class="btn btn-p" id="gerar">Gerar chave</button>'}`, html);
+  $('#del-t').onclick = () => excluirTorneio(t.id);
   $('#ed-t').onclick = () => formTorneio(t);
   $('#gerar').onclick = () => {
     const n = (t.teamIds || []).length;
