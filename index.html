@@ -369,38 +369,39 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .arb .pub-foot{color:rgba(255,255,255,.35)}
 .arb .chip{color:var(--txt)}
 
-/* ============ TELÃO ============ */
-.tv{height:100vh;background:var(--tinta);color:#fff;display:flex;flex-direction:column;overflow:hidden;
-  background-image:radial-gradient(ellipse 70% 45% at 50% -5%,rgba(255,90,54,.22),transparent 60%)}
+/* ============ TELÃO (mesmo tema do sistema) ============ */
+.tv{height:100vh;background:var(--areia);color:var(--txt);display:flex;flex-direction:column;overflow:hidden}
 .tv-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 30px 8px}
-.tv-top h1{font-size:clamp(24px,3.2vw,46px);text-transform:uppercase;line-height:1}
-.tv-top .sub{font-size:clamp(10px,1vw,14px);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:700}
-.tv-cap{font-size:clamp(11px,1.1vw,15px);letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.45);
+.tv-top h1{font-size:clamp(24px,3.2vw,46px);text-transform:uppercase;line-height:1;color:var(--tinta)}
+.tv-top .sub{font-size:clamp(10px,1vw,14px);letter-spacing:.2em;text-transform:uppercase;color:var(--txt-3);font-weight:700}
+.tv-cap{font-size:clamp(11px,1.1vw,15px);letter-spacing:.24em;text-transform:uppercase;color:var(--txt-3);
   font-weight:700;margin:2px 0 10px}
 .tv-body{flex:1;padding:2px 30px 8px;overflow:hidden;position:relative}
 .tv-fit{transform-origin:top left}
-.tv-bar{height:5px;background:rgba(255,255,255,.1);flex:none}
+.tv-bar{height:5px;background:var(--areia-2);flex:none}
 .tv-bar i{display:block;height:100%;background:var(--coral)}
 .tv-grid{display:grid;gap:14px}
-.tv-pl{background:#08192A;border:1px solid rgba(255,255,255,.14);border-radius:18px;overflow:hidden}
-.tv-pl .h{display:flex;justify-content:space-between;align-items:center;padding:9px 18px;background:rgba(255,255,255,.06);
-  font-size:clamp(10px,1vw,14px);letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.65)}
+.tv-pl{background:var(--papel);border:1px solid var(--linha);border-radius:18px;overflow:hidden;box-shadow:var(--sh)}
+.tv-pl .h{display:flex;justify-content:space-between;align-items:center;padding:9px 18px;background:var(--areia);
+  border-bottom:1px solid var(--linha-f);font-size:clamp(10px,1vw,14px);letter-spacing:.16em;text-transform:uppercase;
+  font-weight:700;color:var(--txt-2)}
 .tv-pl .l{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px}
-.tv-pl .l+.l{border-top:1px dashed rgba(255,255,255,.14)}
-.tv-pl .nm{font-family:var(--disp);font-size:clamp(19px,2.1vw,34px);text-transform:uppercase;line-height:1.05}
-.tv-pl .sc{font-family:var(--mono);font-size:clamp(28px,3.4vw,56px);line-height:1;color:var(--dourado)}
-.tv-pl .l.lead .sc{color:#6BF2B0}
-.tv-list{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);border-radius:16px;padding:4px 18px}
-.tv-list .r{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);
+.tv-pl .l+.l{border-top:1px dashed var(--linha)}
+.tv-pl .nm{font-family:var(--disp);font-size:clamp(19px,2.1vw,34px);text-transform:uppercase;line-height:1.05;color:var(--tinta)}
+.tv-pl .sc{font-family:var(--mono);font-size:clamp(28px,3.4vw,56px);line-height:1;color:var(--txt-3)}
+.tv-pl .l.lead .sc{color:var(--coral)}
+.tv-list{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:4px 18px;box-shadow:var(--sh)}
+.tv-list .r{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--linha-f);
   font-size:clamp(13px,1.4vw,21px)}
 .tv-list .r:last-child{border-bottom:none}
-.tv-list .r b{font-family:var(--mono);color:var(--dourado)}
-.tv-qr{position:absolute;right:0;bottom:6px;background:#fff;padding:7px;border-radius:11px;text-align:center}
+.tv-list .r b{font-family:var(--mono);color:var(--tinta)}
+.tv-qr{position:absolute;right:0;bottom:6px;background:#fff;padding:7px;border-radius:11px;text-align:center;
+  border:1px solid var(--linha);box-shadow:var(--sh)}
 .tv-qr canvas{display:block;width:96px;height:96px;image-rendering:pixelated}
 .tv-qr span{font-size:8.5px;color:#0E2436;font-weight:700;letter-spacing:.06em;display:block;margin-top:3px}
 .tv-ctrl{display:flex;gap:6px}
-.tv-ctrl button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:10px;
-  width:36px;height:36px;font-size:15px;cursor:pointer;opacity:.35;transition:.2s}
+.tv-ctrl button{background:var(--papel);border:1px solid var(--linha);color:var(--txt-2);border-radius:10px;
+  width:36px;height:36px;font-size:15px;cursor:pointer;opacity:.45;transition:.2s}
 .tv:hover .tv-ctrl button{opacity:1}
 @media print{.side,.mobnav,.mobtop,.btn,.tabs{display:none!important}.main{padding:0}}
 </style>
@@ -3424,7 +3425,7 @@ function telaoCategorias(ev, ms) {
 function telaoTabela(t, ms) {
   if (t.standings && t.standings.length) {
     return `<div class="tv-list">${t.standings.slice(0, 10).map(s => `<div class="r">
-      <span>${s.pos <= 3 ? TROFEU[s.pos - 1] + ' ' : '<b style="color:rgba(255,255,255,.5)">' + s.pos + 'º</b> '}${esc(Q.teamName(s.teamId))}</span>
+      <span>${s.pos <= 3 ? TROFEU[s.pos - 1] + ' ' : '<b style="color:var(--txt-3)">' + s.pos + 'º</b> '}${esc(Q.teamName(s.teamId))}</span>
       <b>${num(pointsFor(t.pointsConfig || defaultPoints(), s.pos))} pts</b></div>`).join('')}</div>`;
   }
   const vivos = (t.teamIds || []).map(id => ({
@@ -3434,7 +3435,7 @@ function telaoTabela(t, ms) {
   const prox = ms.filter(m => m.status === 'aguardando').slice(0, 8);
   return `<div class="tv-grid" style="grid-template-columns:1.2fr 1fr">
     <div><div class="tv-cap">Situação das duplas</div><div class="tv-list">${vivos.map(x => `<div class="r">
-      <span>${esc(Q.teamName(x.id))}</span><b style="color:${x.der >= 2 ? '#FF8A6B' : x.der === 1 ? '#FFD27A' : '#6BF2B0'}">${x.v}V · ${x.der}D</b></div>`).join('')}</div></div>
+      <span>${esc(Q.teamName(x.id))}</span><b style="color:${x.der >= 2 ? 'var(--vermelho)' : x.der === 1 ? 'var(--dourado)' : 'var(--verde)'}">${x.v}V · ${x.der}D</b></div>`).join('')}</div></div>
     <div><div class="tv-cap">Próximos jogos</div><div class="tv-list">${prox.length ? prox.map(m => `<div class="r">
       <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.courtId ? Q.courtName(m.courtId) : (m.time || '—'))}</b></div>`).join('')
       : '<div class="r"><span>Aguardando a próxima rodada.</span></div>'}</div></div></div>`;
