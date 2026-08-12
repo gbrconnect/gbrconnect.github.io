@@ -272,15 +272,18 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 /* ============ PÚBLICO (mesmo tema do sistema) ============ */
 .pub{min-height:100vh;background:var(--areia);color:var(--txt)}
 .pub-in{max-width:960px;margin:0 auto;padding:0 16px 80px}
-.pub-top{padding:16px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pub-top{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--tinta);
+  color:#fff;margin:0 -16px;padding:13px 20px;border-radius:0 0 18px 18px;box-shadow:var(--sh)}
 .pub-top .brand-mark{background:var(--coral)}
-.pub-top .brand-name{font-size:17px;color:var(--tinta)}
-.pub-hero{padding:14px 0 20px}
-.pub-hero .eyebrow{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--txt-3);font-weight:700}
-.pub-hero h1{font-size:clamp(30px,7vw,54px);text-transform:uppercase;margin:6px 0 12px;color:var(--tinta)}
+.pub-top .brand-name{font-size:17px;color:#fff}
+.pub-top .pub-tab{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18);color:#fff}
+.pub-hero{background:var(--tinta);color:#fff;border-radius:20px;padding:22px 22px 20px;margin:14px 0 6px;
+  box-shadow:var(--sh);background-image:radial-gradient(ellipse 70% 120% at 90% -20%,rgba(255,90,54,.35),transparent 60%)}
+.pub-hero .eyebrow{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
+.pub-hero h1{font-size:clamp(28px,6.4vw,50px);text-transform:uppercase;margin:6px 0 14px;color:#fff}
 .pub-meta{display:flex;gap:8px;flex-wrap:wrap}
-.pub-meta .m{background:var(--papel);border:1px solid var(--linha);padding:6px 12px;border-radius:99px;
-  font-size:12px;color:var(--txt-2);font-weight:600}
+.pub-meta .m{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:6px 12px;border-radius:99px;
+  font-size:12px;color:rgba(255,255,255,.92);font-weight:600}
 .pub-tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 12px;position:sticky;top:0;z-index:20;
   background:linear-gradient(180deg,var(--areia) 72%,rgba(244,237,225,0))}
 .pub-tab{padding:9px 15px;border-radius:99px;font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--txt-2);
@@ -288,15 +291,18 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .pub-tab.on{background:var(--tinta);color:#fff;border-color:var(--tinta)}
 .pub-card{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
 .pub-card h3{font-size:18px;text-transform:uppercase;color:var(--tinta)}
-.sec-cap{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-3);font-weight:700;
+.pub-card.azul{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.pub-card.azul h3{color:#fff}
+.sec-cap{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--tinta);font-weight:700;
   margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+.sec-cap:before{content:"";width:14px;height:3px;border-radius:2px;background:var(--coral)}
 .sec-cap:after{content:"";flex:1;height:1px;background:var(--linha)}
 
 /* PLACAR — elemento-assinatura, agora em papel */
 .placar{background:var(--papel);border:1px solid var(--linha);border-radius:16px;overflow:hidden;margin-bottom:12px;box-shadow:var(--sh)}
-.placar-h{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--areia);
-  border-bottom:1px solid var(--linha-f);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--txt-2)}
-.placar-h .quadra{display:flex;align-items:center;gap:8px;color:var(--tinta)}
+.placar-h{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--tinta);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.7)}
+.placar-h .quadra{display:flex;align-items:center;gap:8px;color:#fff}
 .placar-h .quadra i{font-style:normal;background:var(--coral);color:#fff;border-radius:6px;padding:2px 7px;font-family:var(--disp);font-size:13px}
 .placar-l{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px}
 .placar-l+.placar-l{border-top:1px dashed var(--linha)}
@@ -320,7 +326,7 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .qr-box canvas{display:block;image-rendering:pixelated;width:200px;height:200px}
 .podio{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;align-items:end;margin-bottom:14px}
 .podio .p{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:12px 8px;text-align:center;box-shadow:var(--sh)}
-.podio .p .pos{font-family:var(--disp);font-size:30px;line-height:1;color:var(--txt-2)}
+.podio .p .pos{font-family:var(--disp);font-size:30px;line-height:1;color:var(--tinta)}
 .podio .p.p1{background:linear-gradient(180deg,rgba(239,164,0,.22),var(--papel));border-color:rgba(239,164,0,.55);padding-top:22px}
 .podio .p.p1 .pos{color:#9E6C00}
 .podio .p .nm{font-size:12.5px;font-weight:700;margin-top:6px;color:var(--tinta)}
@@ -371,20 +377,20 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 
 /* ============ TELÃO (mesmo tema do sistema) ============ */
 .tv{height:100vh;background:var(--areia);color:var(--txt);display:flex;flex-direction:column;overflow:hidden}
-.tv-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 30px 8px}
-.tv-top h1{font-size:clamp(24px,3.2vw,46px);text-transform:uppercase;line-height:1;color:var(--tinta)}
-.tv-top .sub{font-size:clamp(10px,1vw,14px);letter-spacing:.2em;text-transform:uppercase;color:var(--txt-3);font-weight:700}
+.tv-top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 30px;
+  background:var(--tinta);color:#fff}
+.tv-top h1{font-size:clamp(24px,3.2vw,46px);text-transform:uppercase;line-height:1;color:#fff}
+.tv-top .sub{font-size:clamp(10px,1vw,14px);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
 .tv-cap{font-size:clamp(11px,1.1vw,15px);letter-spacing:.24em;text-transform:uppercase;color:var(--txt-3);
   font-weight:700;margin:2px 0 10px}
-.tv-body{flex:1;padding:2px 30px 8px;overflow:hidden;position:relative}
+.tv-body{flex:1;padding:14px 30px 8px;overflow:hidden;position:relative}
 .tv-fit{transform-origin:top left}
 .tv-bar{height:5px;background:var(--areia-2);flex:none}
 .tv-bar i{display:block;height:100%;background:var(--coral)}
 .tv-grid{display:grid;gap:14px}
 .tv-pl{background:var(--papel);border:1px solid var(--linha);border-radius:18px;overflow:hidden;box-shadow:var(--sh)}
-.tv-pl .h{display:flex;justify-content:space-between;align-items:center;padding:9px 18px;background:var(--areia);
-  border-bottom:1px solid var(--linha-f);font-size:clamp(10px,1vw,14px);letter-spacing:.16em;text-transform:uppercase;
-  font-weight:700;color:var(--txt-2)}
+.tv-pl .h{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:var(--tinta);
+  font-size:clamp(10px,1vw,14px);letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.72)}
 .tv-pl .l{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px}
 .tv-pl .l+.l{border-top:1px dashed var(--linha)}
 .tv-pl .nm{font-family:var(--disp);font-size:clamp(19px,2.1vw,34px);text-transform:uppercase;line-height:1.05;color:var(--tinta)}
@@ -400,7 +406,7 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .tv-qr canvas{display:block;width:96px;height:96px;image-rendering:pixelated}
 .tv-qr span{font-size:8.5px;color:#0E2436;font-weight:700;letter-spacing:.06em;display:block;margin-top:3px}
 .tv-ctrl{display:flex;gap:6px}
-.tv-ctrl button{background:var(--papel);border:1px solid var(--linha);color:var(--txt-2);border-radius:10px;
+.tv-ctrl button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:10px;
   width:36px;height:36px;font-size:15px;cursor:pointer;opacity:.45;transition:.2s}
 .tv:hover .tv-ctrl button{opacity:1}
 @media print{.side,.mobnav,.mobtop,.btn,.tabs{display:none!important}.main{padding:0}}
