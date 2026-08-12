@@ -299,6 +299,9 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .pub-tab{padding:9px 15px;border-radius:99px;font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--txt-2);
   background:var(--papel);border:1px solid var(--linha);white-space:nowrap;cursor:pointer}
 .pub-tab.on{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+.pub-tab.off{background:transparent;border-style:dashed;border-color:var(--linha);color:var(--txt-3);
+  opacity:.55;pointer-events:none;cursor:default}
+.tab.off{opacity:.4;pointer-events:none;cursor:default}
 .pub-card{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
 .pub-card h3{font-size:18px;text-transform:uppercase;color:var(--tinta)}
 .pub-card.azul{background:var(--tinta);border-color:var(--tinta);color:#fff}
@@ -1629,16 +1632,12 @@ function viewLogin(app) {
           <div><b>Público</b><span>acompanha ao vivo, sem login e sem aplicativo.</span></div>
         </div>
       </div>
-      <div class="login-stats">${st.tournaments || st.orgsTotal
-      ? `<div><span>${num(st.orgsTotal)}</span><small>Organizadores</small></div>
-         <div><span>${num(st.arenas)}</span><small>Arenas</small></div>
-         <div><span>${num(st.tournaments)}</span><small>Torneios</small></div>
-         <div><span>${num(st.athletes)}</span><small>Atletas</small></div>
-         <div><span>${num(st.matches)}</span><small>Jogos</small></div>`
-      : `<div><span>1</span><small>link para o dia inteiro</small></div>
-         <div><span>0</span><small>apps para baixar</small></div>
-         <div><span>2s</span><small>para o placar chegar</small></div>
-         <div><span>∞</span><small>categorias por evento</small></div>`}
+      <div class="login-stats">
+        <div><span>${num(st.orgsTotal)}</span><small>Organizadores</small></div>
+        <div><span>${num(st.arenas)}</span><small>Arenas</small></div>
+        <div><span>${num(st.tournaments)}</span><small>Torneios</small></div>
+        <div><span>${num(st.athletes)}</span><small>Atletas</small></div>
+        <div><span>${num(st.matches)}</span><small>Jogos</small></div>
       </div>
     </div>
     <div class="login-form"><div class="login-card">
@@ -2533,9 +2532,11 @@ function oEventos(app) {
 function oEvento(app, params) {
   const ev = Q.one('events', params[0]);
   if (!ev) { toast('Evento não encontrado.', 'err'); go('#/org/torneios'); return; }
-  const aba = params[1] || 'categorias';
+  let aba = params[1] || 'categorias';
   const s = eventoStats(ev.id);
-  const abas = [['categorias', 'Categorias'], ['duplas', 'Duplas inscritas'], ['partidas', 'Partidas'], ['divulgacao', 'Divulgação']];
+  const abas = [['categorias', 'Categorias', true], ['duplas', 'Duplas inscritas', s.inscricoes > 0],
+    ['partidas', 'Partidas', s.jogos > 0], ['divulgacao', 'Divulgação', true]];
+  aba = abaValida(abas, aba);
   let corpo = '';
   if (aba === 'categorias') {
     corpo = `<div class="grid g4 tight mb22">
@@ -2597,7 +2598,7 @@ ${s.categorias} categorias · inscrições e jogos ao vivo:
 ${esc(linkEvento(ev))}</div></div>
       </div></div></div>`;
   }
-  const html = `<div class="tabs">${abas.map(a => `<a class="tab ${aba === a[0] ? 'on' : ''}" href="#/org/evento/${ev.id}/${a[0]}">${a[1]}</a>`).join('')}</div>${corpo}`;
+  const html = `<div class="tabs">${abasAdminHTML(abas, aba, k => `#/org/evento/${ev.id}/${k}`)}</div>${corpo}`;
   shell(app, MENU_ORG, 'torneios', ev.name, `${Q.arenaName(ev.arenaId)} · ${fmtDate(ev.date)}`,
     `<a class="btn" href="#/e/${ev.slug}" target="_blank">Página pública</a>
      <button class="btn btn-d" id="ed-ev">Editar</button>
@@ -2690,9 +2691,12 @@ function oTorneios(app) {
 function oTorneio(app, params) {
   const t = Q.one('tournaments', params[0]);
   if (!t) { toast('Torneio não encontrado.', 'err'); go('#/org/torneios'); return; }
-  const aba = params[1] || 'visao';
-  const abas = [['visao', 'Visão geral'], ['duplas', 'Duplas'], ['chave', 'Chave'], ['partidas', 'Partidas'], ['classificacao', 'Classificação'], ['divulgacao', 'Divulgação']];
+  let aba = params[1] || 'visao';
   const ms = Q.matches().filter(m => m.tournamentId === t.id && !m.dead).sort((a, b) => a.seq - b.seq);
+  const temChave = ms.length > 0, temDuplas = (t.teamIds || []).length > 0;
+  const abas = [['visao', 'Visão geral', true], ['duplas', 'Duplas', true], ['chave', 'Chave', temChave],
+    ['partidas', 'Partidas', temChave], ['classificacao', 'Classificação', temDuplas], ['divulgacao', 'Divulgação', true]];
+  aba = abaValida(abas, aba);
   let corpo = '';
   if (aba === 'visao') corpo = tVisao(t, ms);
   if (aba === 'duplas') corpo = tDuplas(t);
@@ -2700,7 +2704,7 @@ function oTorneio(app, params) {
   if (aba === 'partidas') corpo = tPartidas(t, ms);
   if (aba === 'classificacao') corpo = tClassificacao(t, ms);
   if (aba === 'divulgacao') corpo = tDivulgacao(t);
-  const html = `<div class="tabs">${abas.map(a => `<a class="tab ${aba === a[0] ? 'on' : ''}" href="#/org/torneio/${t.id}/${a[0]}">${a[1]}</a>`).join('')}</div>${corpo}`;
+  const html = `<div class="tabs">${abasAdminHTML(abas, aba, k => `#/org/torneio/${t.id}/${k}`)}</div>${corpo}`;
   const evPai = Q.event(t.eventId);
   shell(app, MENU_ORG, 'torneios', t.name,
     evPai ? `${evPai.name} · ${Q.arenaName(t.arenaId)} · ${fmtDate(t.date)}` : `${Q.arenaName(t.arenaId)} · ${fmtDate(t.date)}`,
@@ -3477,6 +3481,24 @@ function telaoTabela(t, ms) {
 /* ---------------------------------------------------------------
    12. PÁGINAS PÚBLICAS — sem login, sem cadastro
 --------------------------------------------------------------- */
+/* aba só fica clicável quando existe conteúdo; as outras aparecem apagadas */
+function abaValida(abas, atual) {
+  const achou = abas.find(a => a[0] === atual && a[2] !== false);
+  if (achou) return atual;
+  const primeira = abas.find(a => a[2] !== false);
+  return primeira ? primeira[0] : abas[abas.length - 1][0];
+}
+function abasHTML(abas, atual, href) {
+  return abas.map(a => a[2] === false
+    ? `<span class="pub-tab off" title="ainda sem informação">${a[1]}</span>`
+    : `<a class="pub-tab ${atual === a[0] ? 'on' : ''}" href="${href(a[0])}">${a[1]}</a>`).join('');
+}
+function abasAdminHTML(abas, atual, href) {
+  return abas.map(a => a[2] === false
+    ? `<span class="tab off" title="ainda sem informação">${a[1]}</span>`
+    : `<a class="tab ${atual === a[0] ? 'on' : ''}" href="${href(a[0])}">${a[1]}</a>`).join('');
+}
+
 function pubShell(conteudo, voltar) {
   return `<div class="pub"><div class="pub-in">
     <div class="pub-top"><div class="brand"><div class="brand-mark" style="width:30px;height:30px;font-size:17px;border-radius:8px">G</div>
@@ -3503,7 +3525,10 @@ function pubEvento(app, slug, aba) {
   const nomeCat = id => { const c = cats.find(x => x.id === id); return c ? c.name : ''; };
   const inscritas = cats.reduce((a, c) => a + (c.teamIds || []).length, 0);
   const live = ms.filter(m => m.status === 'andamento');
-  const abas = [['aovivo', 'Ao vivo'], ['categorias', 'Categorias'], ['duplas', 'Duplas inscritas'], ['info', 'Informações']];
+  const temJogos = ms.length > 0, temCats = cats.length > 0;
+  const abas = [['aovivo', 'Ao vivo', temJogos], ['categorias', 'Categorias', temCats],
+    ['duplas', 'Duplas inscritas', inscritas > 0], ['info', 'Informações', true]];
+  aba = abaValida(abas, aba);
   const situacao = live.length || ev.status === 'andamento'
     ? '<span class="live-tag"><span class="dot"></span>AO VIVO</span>'
     : ev.status === 'finalizado' ? '<span class="m" style="background:rgba(239,164,0,.2);color:#FFD27A">Encerrado</span>'
@@ -3583,7 +3608,7 @@ function pubEvento(app, slug, aba) {
       <div class="pub-meta">${situacao}<span class="m">${esc(fmtDate(ev.date))}${ev.time ? ' · ' + esc(ev.time) : ''}</span>
         <span class="m">${cats.length} categorias</span><span class="m">${inscritas} duplas inscritas</span></div>
     </div>
-    <div class="pub-tabs">${abas.map(a => `<a class="pub-tab ${aba === a[0] ? 'on' : ''}" href="#/e/${ev.slug}/${a[0]}">${a[1]}</a>`).join('')}</div>
+    <div class="pub-tabs">${abasHTML(abas, aba, k => `#/e/${ev.slug}/${k}`)}</div>
     ${corpo}`);
 }
 
@@ -3594,7 +3619,10 @@ function pubTorneio(app, slug, aba) {
   const org = DB.organizations.find(o => o.id === t.organizationId);
   const arena = DB.arenas.find(a => a.id === t.arenaId);
   const ms = DB.matches.filter(m => m.tournamentId === t.id && !m.dead).sort((a, b) => a.seq - b.seq);
-  const abas = [['aovivo', 'Ao vivo'], ['chaves', 'Chaves'], ['jogos', 'Jogos'], ['classificacao', 'Classificação'], ['participantes', 'Participantes'], ['info', 'Informações']];
+  const temChave = ms.length > 0, temDuplas = (t.teamIds || []).length > 0;
+  const abas = [['aovivo', 'Ao vivo', temChave], ['chaves', 'Chaves', temChave], ['jogos', 'Jogos', temChave],
+    ['classificacao', 'Classificação', temDuplas], ['participantes', 'Participantes', temDuplas], ['info', 'Informações', true]];
+  aba = abaValida(abas, aba);
   const status = t.status === 'andamento' ? '<span class="live-tag"><span class="dot"></span>AO VIVO</span>'
     : t.status === 'finalizado' ? '<span class="m" style="background:rgba(239,164,0,.2);color:#FFD27A">Encerrado</span>'
       : '<span class="m">Em breve</span>';
@@ -3614,7 +3642,7 @@ function pubTorneio(app, slug, aba) {
         ${t.sport ? `<span class="m">${esc(t.sport)}</span>` : ''}
         <span class="m">${(t.teamIds || []).length} duplas</span></div>
     </div>
-    <div class="pub-tabs">${abas.map(a => `<a class="pub-tab ${aba === a[0] ? 'on' : ''}" href="#/t/${t.slug}/${a[0]}">${a[1]}</a>`).join('')}</div>
+    <div class="pub-tabs">${abasHTML(abas, aba, k => `#/t/${t.slug}/${k}`)}</div>
     ${corpo}`);
 }
 function pubAoVivo(t, ms) {
