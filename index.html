@@ -269,75 +269,66 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 @media(max-width:560px){.podio-r{gap:6px}.podio-r .topo{padding:10px 4px 8px}.podio-r .nm{font-size:11px}
   .podio-r .tro{font-size:20px}.podio-r .av.lg{width:44px;height:44px;font-size:17px}}
 
-/* ============ PÚBLICO (arena à noite) ============ */
-.pub{min-height:100vh;background:var(--tinta);color:#fff;
-  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(255,90,54,.22),transparent 60%)}
+/* ============ PÚBLICO (mesmo tema do sistema) ============ */
+.pub{min-height:100vh;background:var(--areia);color:var(--txt)}
 .pub-in{max-width:960px;margin:0 auto;padding:0 16px 80px}
-.pub-top{padding:18px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.pub-top .brand-name{font-size:16px;color:#fff}
+.pub-top{padding:16px 0 6px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pub-top .brand-mark{background:var(--coral)}
+.pub-top .brand-name{font-size:17px;color:var(--tinta)}
 .pub-hero{padding:14px 0 20px}
-.pub-hero .eyebrow{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:700}
-.pub-hero h1{font-size:clamp(30px,7vw,54px);text-transform:uppercase;margin:6px 0 10px;color:#fff}
+.pub-hero .eyebrow{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--txt-3);font-weight:700}
+.pub-hero h1{font-size:clamp(30px,7vw,54px);text-transform:uppercase;margin:6px 0 12px;color:var(--tinta)}
 .pub-meta{display:flex;gap:8px;flex-wrap:wrap}
-.pub-meta .m{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:6px 11px;border-radius:99px;font-size:12px;color:rgba(255,255,255,.85)}
-.pub-tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;position:sticky;top:0;background:linear-gradient(180deg,var(--tinta) 70%,transparent);z-index:20;-webkit-backdrop-filter:blur(4px)}
-.pub-tab{padding:9px 15px;border-radius:99px;font-size:12.5px;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.6);
-  background:rgba(255,255,255,.07);white-space:nowrap;cursor:pointer;border:1px solid transparent}
-.pub-tab.on{background:#fff;color:var(--tinta)}
-.pub-card{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.11);border-radius:16px;padding:16px;margin-bottom:12px}
-.pub-card h3{font-size:17px;text-transform:uppercase;color:#fff}
-.sec-cap{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:10px}
-.sec-cap:after{content:"";flex:1;height:1px;background:rgba(255,255,255,.13)}
+.pub-meta .m{background:var(--papel);border:1px solid var(--linha);padding:6px 12px;border-radius:99px;
+  font-size:12px;color:var(--txt-2);font-weight:600}
+.pub-tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 0 12px;position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,var(--areia) 72%,rgba(244,237,225,0))}
+.pub-tab{padding:9px 15px;border-radius:99px;font-size:12.5px;font-weight:700;letter-spacing:.03em;color:var(--txt-2);
+  background:var(--papel);border:1px solid var(--linha);white-space:nowrap;cursor:pointer}
+.pub-tab.on{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+.pub-card{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+.pub-card h3{font-size:18px;text-transform:uppercase;color:var(--tinta)}
+.sec-cap{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-3);font-weight:700;
+  margin:22px 0 10px;display:flex;align-items:center;gap:10px}
+.sec-cap:after{content:"";flex:1;height:1px;background:var(--linha)}
 
-/* PLACAR — elemento-assinatura */
-.placar{background:#08192A;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;margin-bottom:12px;
-  box-shadow:0 24px 50px -30px #000}
-.placar-h{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:rgba(255,255,255,.05);
-  font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:rgba(255,255,255,.6)}
-.placar-h .quadra{display:flex;align-items:center;gap:8px;color:#fff}
+/* PLACAR — elemento-assinatura, agora em papel */
+.placar{background:var(--papel);border:1px solid var(--linha);border-radius:16px;overflow:hidden;margin-bottom:12px;box-shadow:var(--sh)}
+.placar-h{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:var(--areia);
+  border-bottom:1px solid var(--linha-f);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--txt-2)}
+.placar-h .quadra{display:flex;align-items:center;gap:8px;color:var(--tinta)}
 .placar-h .quadra i{font-style:normal;background:var(--coral);color:#fff;border-radius:6px;padding:2px 7px;font-family:var(--disp);font-size:13px}
 .placar-l{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px}
-.placar-l+.placar-l{border-top:1px dashed rgba(255,255,255,.12)}
-.placar-l .dupla{font-family:var(--disp);font-size:23px;text-transform:uppercase;line-height:1.1;color:#fff;letter-spacing:.01em}
-.placar-l .dupla small{display:block;font-family:var(--body);font-size:10.5px;letter-spacing:.14em;color:rgba(255,255,255,.4);font-weight:600}
-.placar-l .pts{font-family:var(--mono);font-size:38px;line-height:1;color:var(--dourado);text-shadow:0 0 22px rgba(239,164,0,.45);flex:none}
-.placar-l.lead .pts{color:#6BF2B0;text-shadow:0 0 22px rgba(107,242,176,.4)}
-.placar-f{padding:8px 14px;background:rgba(255,255,255,.03);font-size:11.5px;color:rgba(255,255,255,.5);display:flex;justify-content:space-between;gap:10px}
-.live-tag{display:inline-flex;align-items:center;gap:6px;background:var(--vermelho);color:#fff;padding:3px 9px;border-radius:99px;
-  font-size:10.5px;font-weight:800;letter-spacing:.12em}
-.row-jogo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.placar-l+.placar-l{border-top:1px dashed var(--linha)}
+.placar-l .dupla{font-family:var(--disp);font-size:23px;text-transform:uppercase;line-height:1.1;color:var(--tinta)}
+.placar-l .dupla small{display:block;font-family:var(--body);font-size:10.5px;letter-spacing:.12em;color:var(--txt-3);font-weight:600}
+.placar-l .pts{font-family:var(--mono);font-size:38px;line-height:1;color:var(--txt-3);flex:none}
+.placar-l.lead .dupla{color:var(--tinta)}
+.placar-l.lead .pts{color:var(--coral)}
+.placar-f{padding:8px 14px;background:var(--areia);border-top:1px solid var(--linha-f);font-size:11.5px;
+  color:var(--txt-2);display:flex;justify-content:space-between;gap:10px}
+.live-tag{display:inline-flex;align-items:center;gap:6px;background:var(--vermelho);color:#fff;padding:3px 9px;
+  border-radius:99px;font-size:10.5px;font-weight:800;letter-spacing:.12em}
+.row-jogo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--linha-f)}
 .row-jogo:last-child{border-bottom:none}
-.row-jogo .t{font-size:13.5px;color:#fff}
-.row-jogo .t small{display:block;font-size:10.5px;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase}
-.row-jogo .r{font-family:var(--mono);font-size:15px;color:var(--dourado);flex:none}
-.win-nm{color:#6BF2B0;font-weight:600}
-.pub .bracket .br-m{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.13)}
-.pub .bracket .br-s{color:rgba(255,255,255,.9)}
-.pub .bracket .br-s+.br-s{border-top-color:rgba(255,255,255,.1)}
-.pub .bracket .br-s.win{background:rgba(107,242,176,.13);color:#fff}
-.pub .br-cap{color:rgba(255,255,255,.4)}
-.pub .br-fotos .f{background:rgba(255,255,255,.16);color:#fff;border-color:rgba(255,255,255,.1)}
-.pub .br-tag{background:var(--coral);color:#fff}
-.pub .br-m.final .br-tag{background:var(--dourado);color:#3B2A00}
-.pub-foot{text-align:center;padding:34px 0 10px;color:rgba(255,255,255,.35);font-size:12px}
+.row-jogo .t{font-size:14px;color:var(--txt)}
+.row-jogo .t small{display:block;font-size:10.5px;color:var(--txt-3);letter-spacing:.08em;text-transform:uppercase}
+.row-jogo .r{font-family:var(--mono);font-size:15px;color:var(--tinta);flex:none;font-weight:700}
+.win-nm{color:#0A7A54;font-weight:700}
+.pub-foot{text-align:center;padding:34px 0 10px;color:var(--txt-3);font-size:12px}
 .qr-box{background:#fff;padding:14px;border-radius:14px;display:inline-block}
 .qr-box canvas{display:block;image-rendering:pixelated;width:200px;height:200px}
 .podio{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;align-items:end;margin-bottom:14px}
-.podio .p{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 8px;text-align:center}
-.podio .p .pos{font-family:var(--disp);font-size:30px;line-height:1}
-.podio .p.p1{background:linear-gradient(180deg,rgba(239,164,0,.3),rgba(239,164,0,.06));border-color:rgba(239,164,0,.5);padding-top:22px}
-.podio .p.p1 .pos{color:var(--dourado)}
-.podio .p .nm{font-size:12.5px;font-weight:600;margin-top:6px;color:#fff}
-.podio .p .pt{font-family:var(--mono);font-size:12px;color:rgba(255,255,255,.6)}
+.podio .p{background:var(--papel);border:1px solid var(--linha);border-radius:14px;padding:12px 8px;text-align:center;box-shadow:var(--sh)}
+.podio .p .pos{font-family:var(--disp);font-size:30px;line-height:1;color:var(--txt-2)}
+.podio .p.p1{background:linear-gradient(180deg,rgba(239,164,0,.22),var(--papel));border-color:rgba(239,164,0,.55);padding-top:22px}
+.podio .p.p1 .pos{color:#9E6C00}
+.podio .p .nm{font-size:12.5px;font-weight:700;margin-top:6px;color:var(--tinta)}
+.podio .p .pt{font-family:var(--mono);font-size:12px;color:var(--txt-2)}
 .pill-list{display:flex;flex-wrap:wrap;gap:8px}
-.pill{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:9px 12px;font-size:13px}
-.pill b{display:block;font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.45);text-transform:uppercase;font-weight:700}
-.hidden{display:none!important}
-.right{text-align:right}.center{text-align:center}
-.mut{color:var(--txt-2)}.mut-s{color:var(--txt-3);font-size:12px}
-.mb0{margin-bottom:0}.mb14{margin-bottom:14px}.mb22{margin-bottom:22px}.mt14{margin-top:14px}.mt22{margin-top:22px}
-.flexb{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.nowrap{white-space:nowrap}
+.pill{background:var(--papel);border:1px solid var(--linha);border-radius:11px;padding:9px 12px;font-size:13px;color:var(--txt)}
+.pill b{display:block;font-size:10px;letter-spacing:.12em;color:var(--txt-3);text-transform:uppercase;font-weight:700}
+
 /* ============ MODO ÁRBITRO ============ */
 .arb{min-height:100vh;background:var(--tinta);color:#fff;padding:14px 14px 48px;
   background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(255,90,54,.2),transparent 60%)}
@@ -365,6 +356,18 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
   margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .arb-fila .t{font-size:14px}
 .arb-fila .t small{display:block;font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em}
+
+/* componentes claros reaproveitados dentro da tela escura do árbitro */
+.arb .pub-card{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.11);box-shadow:none;color:#fff}
+.arb .sec-cap{color:rgba(255,255,255,.45)}
+.arb .sec-cap:after{background:rgba(255,255,255,.13)}
+.arb .row-jogo{border-bottom-color:rgba(255,255,255,.08)}
+.arb .row-jogo .t{color:#fff}
+.arb .row-jogo .t small{color:rgba(255,255,255,.45)}
+.arb .row-jogo .r{color:var(--dourado)}
+.arb .win-nm{color:#6BF2B0}
+.arb .pub-foot{color:rgba(255,255,255,.35)}
+.arb .chip{color:var(--txt)}
 
 /* ============ TELÃO ============ */
 .tv{height:100vh;background:var(--tinta);color:#fff;display:flex;flex-direction:column;overflow:hidden;
@@ -3451,7 +3454,7 @@ function pubShell(conteudo, voltar) {
 }
 function pubNaoEncontrado(app, msg) {
   app.innerHTML = pubShell(`<div class="pub-hero"><div class="eyebrow">Ops</div><h1>Link não encontrado</h1>
-    <p style="color:rgba(255,255,255,.6)">${esc(msg)}</p></div>`);
+    <p style="color:var(--txt-2)">${esc(msg)}</p></div>`);
 }
 function pubEvento(app, slug, aba) {
   const ev = DB.events.find(x => x.slug === slug || x.id === slug);
@@ -3487,15 +3490,15 @@ function pubEvento(app, slug, aba) {
     };
     corpo = `${live.length ? `<div class="sec-cap">Acontecendo agora</div>${live.map(placar).join('')}`
       : `<div class="pub-card"><h3>Nenhum jogo em quadra agora</h3>
-          <p style="color:rgba(255,255,255,.6);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui sozinho — sem precisar atualizar a página.</p></div>`}
+          <p style="color:var(--txt-2);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui sozinho — sem precisar atualizar a página.</p></div>`}
       ${prox.length ? `<div class="sec-cap">Próximos jogos</div><div class="pub-card">
-        ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:rgba(255,255,255,.35)">x</span> ${esc(Q.teamShort(m.teamBId))}
+        ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:var(--txt-3)">x</span> ${esc(Q.teamShort(m.teamBId))}
           <small>${esc(nomeCat(m.tournamentId))}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
           <div class="r">${esc(m.time || '—')}</div></div>`).join('')}</div>` : ''}
       ${ult.length ? `<div class="sec-cap">Últimos resultados</div><div class="pub-card">
         ${ult.map(m => `<div class="row-jogo"><div class="t">
           <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
-          <span style="color:rgba(255,255,255,.35)"> x </span>
+          <span style="color:var(--txt-3)"> x </span>
           <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
           <small>${esc(nomeCat(m.tournamentId))} · ${esc(m.label)}</small></div>
           <div class="r">${m.scoreA} x ${m.scoreB}</div></div>`).join('')}</div>` : ''}`;
@@ -3510,7 +3513,7 @@ function pubEvento(app, slug, aba) {
           <small>${(c.teamIds || []).length} duplas${mc.length ? ' · ' + fim + '/' + mc.length + ' jogos' : ''}${campeao ? ' · 🏆 ' + esc(campeao) : ''}</small></div>
           <a class="pub-tab" href="#/t/${c.slug}">abrir</a></div>`;
     }).join('')}</div>`
-      : `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">As categorias ainda não foram divulgadas.</p></div>`;
+      : `<div class="pub-card"><p style="color:var(--txt-2);margin:0">As categorias ainda não foram divulgadas.</p></div>`;
   }
   if (aba === 'duplas') {
     corpo = cats.length ? cats.map(c => {
@@ -3518,8 +3521,8 @@ function pubEvento(app, slug, aba) {
       return `<div class="sec-cap">${esc(c.name)} · ${duplas.length} dupla(s)</div>
         <div class="pub-card">${duplas.length ? `<div class="pill-list">
           ${duplas.map(d => `<span class="pill"><b>dupla</b>${esc(Q.teamName(d.id))}</span>`).join('')}</div>`
-        : '<p style="color:rgba(255,255,255,.55);margin:0">Nenhuma dupla inscrita ainda.</p>'}</div>`;
-    }).join('') : `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">Ainda não há categorias abertas.</p></div>`;
+        : '<p style="color:var(--txt-3);margin:0">Nenhuma dupla inscrita ainda.</p>'}</div>`;
+    }).join('') : `<div class="pub-card"><p style="color:var(--txt-2);margin:0">Ainda não há categorias abertas.</p></div>`;
   }
   if (aba === 'info') {
     corpo = `<div class="sec-cap">Informações</div>
@@ -3530,13 +3533,13 @@ function pubEvento(app, slug, aba) {
         <span class="pill"><b>categorias</b>${cats.length}</span>
         <span class="pill"><b>inscrições</b>${inscritas}</span>
       </div>
-      ${ev.description ? `<p style="color:rgba(255,255,255,.75);margin:16px 0 0">${esc(ev.description)}</p>` : ''}</div>
+      ${ev.description ? `<p style="color:var(--txt);margin:16px 0 0">${esc(ev.description)}</p>` : ''}</div>
       ${ev.rules ? `<div class="sec-cap">Regulamento</div><div class="pub-card">
-        <p style="color:rgba(255,255,255,.75);margin:0;white-space:pre-wrap">${esc(ev.rules)}</p></div>` : ''}
+        <p style="color:var(--txt);margin:0;white-space:pre-wrap">${esc(ev.rules)}</p></div>` : ''}
       ${arena ? `<div class="sec-cap">Onde é</div><div class="pub-card">
         <h3>${esc(arena.name)}</h3>
-        <p style="color:rgba(255,255,255,.7);margin:6px 0 0">${esc([arena.address, arena.city, arena.state].filter(Boolean).join(' · ') || 'endereço não informado')}</p>
-        ${arena.phone ? `<p style="color:rgba(255,255,255,.7);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}
+        <p style="color:var(--txt-2);margin:6px 0 0">${esc([arena.address, arena.city, arena.state].filter(Boolean).join(' · ') || 'endereço não informado')}</p>
+        ${arena.phone ? `<p style="color:var(--txt-2);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}
         <a class="pub-tab" style="display:inline-block;margin-top:12px" href="#/arena/${arena.id}">Ver a arena →</a></div>` : ''}`;
   }
   app.innerHTML = pubShell(`
@@ -3563,7 +3566,7 @@ function pubTorneio(app, slug, aba) {
       : '<span class="m">Em breve</span>';
   let corpo = '';
   if (aba === 'aovivo') corpo = pubAoVivo(t, ms);
-  if (aba === 'chaves') corpo = ms.length ? renderBracket(ms, true) : `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">A chave ainda não foi divulgada.</p></div>`;
+  if (aba === 'chaves') corpo = ms.length ? renderBracket(ms, true) : `<div class="pub-card"><p style="color:var(--txt-2);margin:0">A chave ainda não foi divulgada.</p></div>`;
   if (aba === 'jogos') corpo = pubJogos(ms);
   if (aba === 'classificacao') corpo = pubClassificacao(t, ms);
   if (aba === 'participantes') corpo = pubParticipantes(t);
@@ -3595,25 +3598,25 @@ function pubAoVivo(t, ms) {
   };
   return `${ao.length ? `<div class="sec-cap">Partidas em andamento</div>${ao.map(placar).join('')}`
     : `<div class="pub-card"><h3>Nenhum jogo em quadra agora</h3>
-        <p style="color:rgba(255,255,255,.6);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui automaticamente — sem precisar atualizar a página.</p></div>`}
+        <p style="color:var(--txt-2);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui automaticamente — sem precisar atualizar a página.</p></div>`}
     ${prox.length ? `<div class="sec-cap">Próximos jogos</div><div class="pub-card">
-      ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:rgba(255,255,255,.35)">x</span> ${esc(Q.teamShort(m.teamBId))}
+      ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:var(--txt-3)">x</span> ${esc(Q.teamShort(m.teamBId))}
         <small>${esc(m.label)}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
         <div class="r">${esc(m.time || '—')}</div></div>`).join('')}</div>` : ''}
     ${ult.length ? `<div class="sec-cap">Últimos resultados</div><div class="pub-card">
       ${ult.map(m => `<div class="row-jogo"><div class="t">
         <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
-        <span style="color:rgba(255,255,255,.35)"> x </span>
+        <span style="color:var(--txt-3)"> x </span>
         <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
         <small>${esc(m.label)}</small></div><div class="r">${m.scoreA} x ${m.scoreB}</div></div>`).join('')}</div>` : ''}`;
 }
 function pubJogos(ms) {
-  if (!ms.length) return `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">Os jogos aparecem aqui quando a chave for gerada.</p></div>`;
+  if (!ms.length) return `<div class="pub-card"><p style="color:var(--txt-2);margin:0">Os jogos aparecem aqui quando a chave for gerada.</p></div>`;
   const grupos = [['Chave dos vencedores', ms.filter(m => m.bracket === 'W')], ['Repescagem', ms.filter(m => m.bracket === 'L')], ['Grande final', ms.filter(m => m.bracket === 'F')]];
   return grupos.filter(g => g[1].length).map(g => `<div class="sec-cap">${g[0]}</div><div class="pub-card">
     ${g[1].map(m => `<div class="row-jogo"><div class="t">
       <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId) || (m.bye ? 'sem adversário' : 'a definir'))}</span>
-      <span style="color:rgba(255,255,255,.35)"> x </span>
+      <span style="color:var(--txt-3)"> x </span>
       <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId) || (m.bye ? 'sem adversário' : 'a definir'))}</span>
       <small>${esc(m.label)}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
       <div class="r">${m.status === 'finalizado' ? (m.bye ? 'passou direto' : m.scoreA + ' x ' + m.scoreB) : m.status === 'andamento' ? '● ao vivo' : (m.time || '—')}</div></div>`).join('')}
@@ -3635,14 +3638,14 @@ function pubClassificacao(t, ms) {
     id, der: ms.filter(m => m.status === 'finalizado' && m.loserId === id).length,
     v: ms.filter(m => m.winnerId === id && !m.bye).length
   })).sort((a, b) => a.der - b.der || b.v - a.v);
-  if (!vivos.length) return `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">Sem duplas inscritas ainda.</p></div>`;
+  if (!vivos.length) return `<div class="pub-card"><p style="color:var(--txt-2);margin:0">Sem duplas inscritas ainda.</p></div>`;
   return `<div class="sec-cap">Situação atual</div><div class="pub-card">
     ${vivos.map(x => `<div class="row-jogo"><div class="t">${esc(Q.teamName(x.id))}<small>${x.v} vitórias · ${x.der} derrotas</small></div>
       <div class="r" style="font-size:11px;letter-spacing:.1em">${x.der >= 2 ? 'ELIMINADA' : x.der === 1 ? 'LOSERS' : 'INVICTA'}</div></div>`).join('')}</div>`;
 }
 function pubParticipantes(t) {
   const duplas = (t.teamIds || []).map(id => Q.team(id)).filter(Boolean);
-  if (!duplas.length) return `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">As duplas ainda não foram divulgadas.</p></div>`;
+  if (!duplas.length) return `<div class="pub-card"><p style="color:var(--txt-2);margin:0">As duplas ainda não foram divulgadas.</p></div>`;
   return `<div class="sec-cap">${duplas.length} duplas</div><div class="pub-card"><div class="pill-list">
     ${duplas.map(d => `<span class="pill"><b>dupla</b>${esc(Q.teamName(d.id))}</span>`).join('')}</div></div>`;
 }
@@ -3656,13 +3659,13 @@ function pubInfo(t, org, arena) {
       <span class="pill"><b>formato</b>Eliminatória dupla</span>
       ${t.fee ? `<span class="pill"><b>inscrição</b>R$ ${esc(t.fee)}</span>` : ''}
     </div>
-    ${t.description ? `<p style="color:rgba(255,255,255,.75);margin:16px 0 0">${esc(t.description)}</p>` : ''}</div>
+    ${t.description ? `<p style="color:var(--txt);margin:16px 0 0">${esc(t.description)}</p>` : ''}</div>
     ${t.rules ? `<div class="sec-cap">Regulamento</div><div class="pub-card">
-      <p style="color:rgba(255,255,255,.75);margin:0;white-space:pre-wrap">${esc(t.rules)}</p></div>` : ''}
+      <p style="color:var(--txt);margin:0;white-space:pre-wrap">${esc(t.rules)}</p></div>` : ''}
     ${arena ? `<div class="sec-cap">Onde é</div><div class="pub-card">
       <h3>${esc(arena.name)}</h3>
-      <p style="color:rgba(255,255,255,.7);margin:6px 0 0">${esc([arena.address, arena.city, arena.state].filter(Boolean).join(' · ') || 'endereço não informado')}</p>
-      ${arena.phone ? `<p style="color:rgba(255,255,255,.7);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}
+      <p style="color:var(--txt-2);margin:6px 0 0">${esc([arena.address, arena.city, arena.state].filter(Boolean).join(' · ') || 'endereço não informado')}</p>
+      ${arena.phone ? `<p style="color:var(--txt-2);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}
       <a class="pub-tab" style="display:inline-block;margin-top:12px" href="#/arena/${arena.id}">Ver a arena →</a></div>` : ''}`;
 }
 function pubArena(app, id) {
@@ -3683,7 +3686,7 @@ function pubArena(app, id) {
       <span class="pill"><b>torneios</b>${num(s.tournaments)}</span><span class="pill"><b>atletas</b>${num(s.athletes)}</span>
       <span class="pill"><b>duplas</b>${num(s.teams)}</span><span class="pill"><b>jogos</b>${num(s.matches)}</span>
       <span class="pill"><b>quadras</b>${DB.courts.filter(c => c.arenaId === a.id).length}</span></div>
-      ${a.description ? `<p style="color:rgba(255,255,255,.75);margin:16px 0 0">${esc(a.description)}</p>` : ''}</div>
+      ${a.description ? `<p style="color:var(--txt);margin:16px 0 0">${esc(a.description)}</p>` : ''}</div>
     ${prox.length ? `<div class="sec-cap">Próximos torneios</div>${lista(prox)}` : ''}
     ${ant.length ? `<div class="sec-cap">Torneios anteriores</div>${lista(ant)}` : ''}`);
 }
@@ -3707,7 +3710,7 @@ function pubOrganizador(app, slug) {
     ${rank.length ? `<div class="sec-cap">Ranking</div><div class="pub-card">${rank.map((x, i) => `<div class="row-jogo">
       <div class="t" style="display:flex;align-items:center;gap:10px">
         <span style="width:26px;text-align:center;font-size:${i < 3 ? '17px' : '13px'};font-family:var(--mono)">${i < 3 ? TROFEU[i] : (i + 1)}</span>
-        <span class="av" style="background:rgba(255,255,255,.14);color:#fff;width:32px;height:32px;font-size:13px">${x.atleta.photo ? `<img src="${x.atleta.photo}" alt="">` : esc(initials(x.atleta.name))}</span>
+        <span class="av" style="background:var(--areia-2);color:var(--tinta);width:32px;height:32px;font-size:13px">${x.atleta.photo ? `<img src="${x.atleta.photo}" alt="">` : esc(initials(x.atleta.name))}</span>
         <span>${esc(x.atleta.name)}<small>${codigoAtleta(x.atleta)} · ${x.torneios} torneios · ${x.titulos} títulos</small></span></div>
       <div class="r">${num(x.pontos)}</div></div>`).join('')}</div>` : ''}`);
 }
@@ -3722,7 +3725,7 @@ function pubAtleta(app, id) {
   app.innerHTML = pubShell(`
     <div class="pub-hero"><div class="eyebrow">${esc(org ? org.name : '')}</div>
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-        <div class="av xl" style="background:rgba(255,255,255,.1);color:#fff">${a.photo ? `<img src="${a.photo}" alt="">` : esc(initials(a.name))}</div>
+        <div class="av xl" style="background:var(--areia-2);color:#fff">${a.photo ? `<img src="${a.photo}" alt="">` : esc(initials(a.name))}</div>
         <div><h1 style="margin:0">${esc(a.name)}</h1>
         <div class="pub-meta" style="margin-top:8px">${a.category ? `<span class="m">${esc(a.category)}</span>` : ''}
           ${a.instagram ? `<span class="m">${esc(a.instagram)}</span>` : ''}</div></div></div></div>
@@ -3776,8 +3779,8 @@ setInterval(async () => {
 function telaCarregando(msg) {
   return `<div class="pub" style="display:grid;place-items:center;min-height:100vh"><div style="text-align:center">
     <div class="brand" style="justify-content:center"><div class="brand-mark">G</div>
-      <div class="brand-name" style="color:#fff">GBR Connect<small>Plataforma de torneios</small></div></div>
-    <p style="color:rgba(255,255,255,.6);margin-top:18px">${esc(msg || 'Conectando à nuvem...')}</p></div></div>`;
+      <div class="brand-name" style="color:var(--tinta)">GBR Connect<small style="color:var(--txt-3)">Plataforma de torneios</small></div></div>
+    <p class="mut" style="margin-top:18px">${esc(msg || 'Conectando à nuvem...')}</p></div></div>`;
 }
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => { }));
