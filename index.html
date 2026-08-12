@@ -428,6 +428,11 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&a
 const num = n => (n || 0).toLocaleString('pt-BR');
 const slugify = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'item';
+function slugUnico(base, usados) {
+  let sl = slugify(base), i = 2;
+  while (usados.includes(sl)) sl = slugify(base) + '-' + (i++);
+  return sl;
+}
 const initials = s => String(s || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 const today = () => new Date().toISOString().slice(0, 10);
 const fmtDate = d => { if (!d) return '—'; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; };
@@ -447,7 +452,7 @@ function toast(msg, type) {
 --------------------------------------------------------------- */
 const DB_KEY = 'gbr_connect_db_v1';
 const SESS_KEY = 'gbr_connect_sessao';
-const TABLES = ['users', 'organizations', 'arenas', 'courts', 'athletes', 'teams', 'tournaments',
+const TABLES = ['users', 'organizations', 'arenas', 'courts', 'athletes', 'teams', 'events', 'tournaments',
   'tournament_categories', 'registrations', 'matches', 'ranking_points', 'logs'];
 
 let DB = null;
@@ -600,6 +605,7 @@ const Q = {
   courts: o => scoped('courts', o),
   athletes: o => scoped('athletes', o),
   teams: o => scoped('teams', o),
+  events: o => scoped('events', o),
   tournaments: o => scoped('tournaments', o),
   matches: o => scoped('matches', o),
   points: o => scoped('ranking_points', o),
@@ -625,7 +631,10 @@ const Q = {
     const a = Q.athlete(t.athlete1Id), b = Q.athlete(t.athlete2Id);
     return [short(a && a.name), short(b && b.name)].join(' / ');
   },
-  orgName(id) { const o = DB.organizations.find(x => x.id === id); return o ? o.name : '—'; }
+  orgName(id) { const o = DB.organizations.find(x => x.id === id); return o ? o.name : '—'; },
+  event(id) { return DB.events.find(x => x.id === id) || null; },
+  eventName(id) { const e = Q.event(id); return e ? e.name : '—'; },
+  categorias(eventId) { return Q.tournaments().filter(t => t.eventId === eventId).sort((a, b) => (a.ordem || 0) - (b.ordem || 0) || String(a.name).localeCompare(String(b.name))); }
 };
 
 /* ---------------------------------------------------------------
@@ -697,7 +706,8 @@ const COLS = {
   courts: ['id', 'organization_id', 'arena_id', 'name', 'status'],
   athletes: ['id', 'organization_id', 'code', 'name', 'photo', 'phone', 'instagram', 'category', 'status'],
   teams: ['id', 'organization_id', 'name', 'athlete1_id', 'athlete2_id'],
-  tournaments: ['id', 'organization_id', 'arena_id', 'name', 'slug', 'sport', 'category', 'date', 'time', 'description', 'rules',
+  events: ['id', 'organization_id', 'arena_id', 'name', 'slug', 'date', 'time', 'description', 'rules', 'banner', 'status'],
+  tournaments: ['id', 'organization_id', 'event_id', 'arena_id', 'name', 'slug', 'sport', 'category', 'date', 'time', 'description', 'rules',
     'banner', 'format', 'max_teams', 'fee', 'status', 'points_config', 'standings', 'size', 'bracket_generated', 'finished_at'],
   registrations: ['id', 'organization_id', 'tournament_id', 'team_id', 'seed'],
   matches: ['id', 'organization_id', 'tournament_id', 'arena_id', 'court_id', 'bracket', 'round', 'idx', 'seq', 'label', 'category',
@@ -708,8 +718,8 @@ const COLS = {
   logs: ['id', 'organization_id', 'user_id', 'user_name', 'role', 'action', 'detail', 'created_at']
 };
 const TAB_DE = { organizations: 'organizations', users: 'profiles', arenas: 'arenas', courts: 'courts', athletes: 'athletes',
-  teams: 'teams', tournaments: 'tournaments', matches: 'matches', ranking_points: 'ranking_points', logs: 'logs' };
-const ORDEM_SYNC = ['organizations', 'arenas', 'courts', 'athletes', 'teams', 'tournaments', 'matches', 'ranking_points', 'logs'];
+  teams: 'teams', events: 'events', tournaments: 'tournaments', matches: 'matches', ranking_points: 'ranking_points', logs: 'logs' };
+const ORDEM_SYNC = ['organizations', 'arenas', 'courts', 'athletes', 'teams', 'events', 'tournaments', 'matches', 'ranking_points', 'logs'];
 const BOOL_COLS = ['is_reset', 'bye', 'dead', 'bracket_generated', 'active'];
 
 const Nuvem = {
@@ -804,7 +814,7 @@ const Nuvem = {
     const novo = emptyDB();
     TABLES.forEach(t => novo[t] = []);
     const tabelas = [['organizations', 'organizations'], ['profiles', 'users'], ['arenas', 'arenas'], ['courts', 'courts'],
-      [this.logado() ? 'athletes' : 'athletes_publico', 'athletes'], ['teams', 'teams'], ['tournaments', 'tournaments'],
+      [this.logado() ? 'athletes' : 'athletes_publico', 'athletes'], ['teams', 'teams'], ['events', 'events'], ['tournaments', 'tournaments'],
       ['registrations', null], ['matches', 'matches'], ['ranking_points', 'ranking_points'], ['logs', 'logs']];
     let marca = this.marca;
     for (const [tab, alvo] of tabelas) {
@@ -1551,6 +1561,7 @@ function render() {
   window.scrollTo(0, 0);
   if (TelaoTimer) { clearTimeout(TelaoTimer); TelaoTimer = null; }
   // rotas públicas — nunca exigem login
+  if (p[0] === 'e') return pubEvento(app, p[1], p[2]);
   if (p[0] === 't') return pubTorneio(app, p[1], p[2]);
   if (p[0] === 'arena') return pubArena(app, p[1]);
   if (p[0] === 'perfil') return pubOrganizador(app, p[1]);
@@ -1715,7 +1726,7 @@ const MENU_MASTER = [
 ];
 const MENU_ORG = [
   { k: 'dashboard', t: 'Painel', i: '◎', h: '#/org/dashboard' },
-  { k: 'torneios', t: 'Torneios', i: '▲', h: '#/org/torneios' },
+  { k: 'torneios', t: 'Eventos', i: '▲', h: '#/org/torneios' },
   { k: 'partidas', t: 'Partidas', i: '⚑', h: '#/org/partidas' },
   { k: 'arenas', t: 'Arenas', i: '⬒', h: '#/org/arenas' },
   { k: 'atletas', t: 'Atletas', i: '✦', h: '#/org/atletas' },
@@ -2075,7 +2086,7 @@ function bindFiltros() {
 }
 function viewOrg(app, page, params) {
   const P = {
-    dashboard: oDashboard, torneios: oTorneios, torneio: oTorneio, arenas: oArenas, quadras: oQuadras, arbitros: oArbitros,
+    dashboard: oDashboard, torneios: oEventos, evento: oEvento, torneio: oTorneio, arenas: oArenas, quadras: oQuadras, arbitros: oArbitros,
     atletas: oAtletas, duplas: oDuplas, partidas: oPartidas, ranking: oRanking,
     estatisticas: oEstatisticas, configuracoes: oConfig
   };
@@ -2117,7 +2128,7 @@ function oDashboard(app) {
         ${prox.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>${prox.map(t => `<tr>
           <td><b>${esc(t.name)}</b><div class="mut-s">${esc(Q.arenaName(t.arenaId))} · ${fmtDate(t.date)}</div></td>
           <td class="right">${statusBadge(t.status)}</td>
-          <td class="right"><a class="btn btn-s" href="#/org/torneio/${t.id}">Abrir</a></td></tr>`).join('')}</tbody></table></div>`
+          <td class="right"><a class="btn btn-s" href="${t.eventId ? '#/org/evento/' + t.eventId : '#/org/torneio/' + t.id}">Abrir</a></td></tr>`).join('')}</tbody></table></div>`
       : '<div class="empty" style="padding:28px"><p class="mut">Nenhum torneio no período selecionado.</p></div>'}</div>
       <div class="card"><div class="card-h"><h3>Últimos resultados</h3></div>
         ${ult.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>${ult.map(m => `<tr>
@@ -2137,9 +2148,9 @@ function oDashboard(app) {
         <td class="num"><b>${num(s.matches)}</b></td><td class="num"><b>${Q.courts().length}</b></td><td></td></tr>
       </tbody></table></div></div>`;
   shell(app, MENU_ORG, 'dashboard', 'Olá, ' + Sess.org().name + ' 👋', 'Meu painel',
-    `<button class="btn btn-p" id="novo-t">+ Criar torneio</button>`, html);
+    `<button class="btn btn-p" id="novo-t">+ Criar evento</button>`, html);
   bindFiltros();
-  $('#novo-t').onclick = () => formTorneio();
+  $('#novo-t').onclick = () => formEvento();
   bindCardPartida();
 }
 function nomeTorneio(id) { const t = DB.tournaments.find(x => x.id === id); return t ? t.name : ''; }
@@ -2372,17 +2383,220 @@ function oDuplas(app) {
   $$('[data-del-dup]').forEach(b => b.onclick = () => excluirDupla(b.dataset.delDup));
 }
 
+/* ---------- EVENTOS (o dia) e CATEGORIAS (cada chave) ---------- */
+function migrarEventos() {
+  if (!Sess.user || Sess.isArbitro() || !Sess.orgId) return false;
+  const soltos = Q.tournaments().filter(t => !t.eventId);
+  if (!soltos.length) return false;
+  const grupos = {};
+  soltos.forEach(t => { const k = (t.arenaId || '-') + '|' + (t.date || '-'); (grupos[k] = grupos[k] || []).push(t); });
+  const usados = DB.events.map(e => e.slug);
+  Object.values(grupos).forEach(lista => {
+    const base = lista[0];
+    const nome = (Q.arenaName(base.arenaId) || 'Evento') + ' · ' + fmtDate(base.date).slice(0, 5);
+    const ev = {
+      id: uid('ev'), organizationId: base.organizationId, arenaId: base.arenaId, name: nome,
+      slug: slugUnico(nome, usados), date: base.date, time: base.time || null,
+      description: '', rules: '', status: 'aberto', createdAt: Date.now()
+    };
+    usados.push(ev.slug);
+    DB.events.push(ev);
+    lista.forEach(t => { t.eventId = ev.id; if (!t.category) t.category = t.name; });
+  });
+  log('evento', 'Organizou os torneios existentes em eventos');
+  saveDB();
+  return true;
+}
+function formEvento(ev) {
+  const arenas = Q.arenas();
+  if (!arenas.length) { toast('Cadastre uma arena antes de criar um evento.', 'err'); formArena(); return; }
+  const campos = [
+    { k: 'name', label: 'Nome do evento', req: true, val: ev && ev.name, ph: 'ex.: 3ª Etapa Viva Beach' },
+    { k: 'arenaId', label: 'Arena', type: 'select', req: true, val: ev && ev.arenaId, opts: arenas.map(a => ({ v: a.id, t: a.name })) },
+    { k: 'date', label: 'Data', type: 'date', req: true, val: ev ? ev.date : today(), half: true },
+    { k: 'time', label: 'Horário de início', type: 'time', val: ev ? ev.time : '08:00', half: true },
+    { k: 'status', label: 'Situação', type: 'select', val: ev ? ev.status : 'aberto', half: true, opts: [
+        { v: 'rascunho', t: 'Rascunho' }, { v: 'aberto', t: 'Inscrições abertas' }, { v: 'andamento', t: 'Em andamento' },
+        { v: 'finalizado', t: 'Finalizado' }, { v: 'cancelado', t: 'Cancelado' }] },
+    { k: 'banner', label: 'Banner', type: 'file' },
+    { k: 'description', label: 'Descrição', type: 'textarea', val: ev && ev.description },
+    { k: 'rules', label: 'Regulamento geral', type: 'textarea', val: ev && ev.rules }
+  ];
+  formModal(ev ? 'Editar evento' : 'Criar evento', campos, d => {
+    if (ev) {
+      const trocouData = ev.date !== d.date, trocouArena = ev.arenaId !== d.arenaId;
+      Object.assign(ev, d, { banner: d.banner || ev.banner });
+      if (trocouData || trocouArena) Q.categorias(ev.id).forEach(t => { t.date = ev.date; t.arenaId = ev.arenaId; });
+      log('evento', 'Editou ' + ev.name); saveDB(); render(); toast('Evento salvo.', 'ok');
+    } else {
+      const novo = {
+        id: uid('ev'), organizationId: Sess.orgId, ...d,
+        slug: slugUnico(d.name, DB.events.map(e => e.slug)), createdAt: Date.now()
+      };
+      DB.events.push(novo);
+      log('evento', 'Criou o evento ' + novo.name); saveDB();
+      toast('Evento criado. Agora adicione as categorias.', 'ok');
+      go('#/org/evento/' + novo.id);
+    }
+  }, ev ? 'Salvar' : 'Criar evento');
+}
+function excluirEvento(id) {
+  const ev = Q.event(id); if (!ev) return;
+  const cats = Q.categorias(id);
+  confirmarTexto('Excluir evento', `Isso remove <b>${esc(ev.name)}</b> e as ${cats.length} categoria(s) dele, com as chaves e os pontos gerados. Atletas e duplas continuam cadastrados.`,
+    'excluir', () => {
+      const ids = cats.map(c => c.id);
+      DB.matches = DB.matches.filter(m => !ids.includes(m.tournamentId));
+      DB.ranking_points = DB.ranking_points.filter(p => !ids.includes(p.tournamentId));
+      DB.tournaments = DB.tournaments.filter(t => t.eventId !== id);
+      DB.events = DB.events.filter(e => e.id !== id);
+      log('evento', 'Excluiu ' + ev.name); saveDB(); go('#/org/torneios'); render(); toast('Evento excluído.', 'ok');
+    });
+}
+function eventoStats(id) {
+  const cats = Q.categorias(id);
+  const ids = cats.map(c => c.id);
+  const ms = Q.matches().filter(m => ids.includes(m.tournamentId) && !m.dead);
+  const duplas = new Set(); cats.forEach(c => (c.teamIds || []).forEach(t => duplas.add(t)));
+  return {
+    categorias: cats.length, duplas: duplas.size, inscricoes: cats.reduce((a, c) => a + (c.teamIds || []).length, 0),
+    jogos: ms.length, fim: ms.filter(m => m.status === 'finalizado').length,
+    live: ms.filter(m => m.status === 'andamento').length, cats, ms
+  };
+}
+function linkEvento(ev) { return location.href.split('#')[0] + '#/e/' + ev.slug; }
+
+function oEventos(app) {
+  migrarEventos();
+  const evs = Q.events().slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const soltos = Q.tournaments().filter(t => !t.eventId);
+  const html = (evs.length ? `<div class="grid g3">${evs.map(ev => {
+    const s = eventoStats(ev.id);
+    return `<div class="card"><div class="card-p">
+      <div class="flexb mb14"><span class="mut-s">${esc(fmtDate(ev.date))} · ${esc(Q.arenaName(ev.arenaId))}</span>${statusBadge(ev.status)}</div>
+      <h3 style="font-size:21px;text-transform:uppercase;margin-bottom:6px">${esc(ev.name)}</h3>
+      <div class="mut-s mb14">${s.categorias} categoria(s) · ${s.inscricoes} inscrição(ões) · ${s.duplas} dupla(s)</div>
+      <div class="bar mb14"><i style="width:${pct(s.fim, s.jogos)}%"></i></div>
+      <div class="flexb mb14"><span class="mut-s">${s.fim}/${s.jogos} jogos</span>
+        ${s.live ? `<span class="badge live"><span class="dot"></span>${s.live} ao vivo</span>` : ''}</div>
+      <div class="btn-row"><a class="btn btn-s btn-p" href="#/org/evento/${ev.id}">Abrir evento</a>
+        <a class="btn btn-s btn-d" href="#/e/${ev.slug}" target="_blank">Página pública</a></div></div></div>`;
+  }).join('')}</div>` : vazio('▲', 'Nenhum evento criado',
+    'Um evento é o dia: dentro dele entram as categorias (estreante, iniciante, misto...), cada uma com a própria chave.',
+    '<button class="btn btn-p" id="nv2">+ Criar evento</button>'))
+    + (soltos.length ? `<div class="brk-title mt22"><h3>Categorias sem evento</h3><div class="ln"></div></div>
+      <div class="grid g3">${soltos.map(t => `<div class="card"><div class="card-p">
+        <div class="flexb mb14"><span class="mut-s">${esc(fmtDate(t.date))}</span>${statusBadge(t.status)}</div>
+        <h3 style="font-size:19px;text-transform:uppercase">${esc(t.name)}</h3>
+        <div class="btn-row mt14"><a class="btn btn-s btn-p" href="#/org/torneio/${t.id}">Abrir</a></div></div></div>`).join('')}</div>` : '');
+  shell(app, MENU_ORG, 'torneios', 'Meus eventos', esc(Sess.org().name), `<button class="btn btn-p" id="nv">+ Criar evento</button>`, html);
+  $('#nv').onclick = () => formEvento(); if ($('#nv2')) $('#nv2').onclick = () => formEvento();
+}
+
+function oEvento(app, params) {
+  const ev = Q.one('events', params[0]);
+  if (!ev) { toast('Evento não encontrado.', 'err'); go('#/org/torneios'); return; }
+  const aba = params[1] || 'categorias';
+  const s = eventoStats(ev.id);
+  const abas = [['categorias', 'Categorias'], ['duplas', 'Duplas inscritas'], ['partidas', 'Partidas'], ['divulgacao', 'Divulgação']];
+  let corpo = '';
+  if (aba === 'categorias') {
+    corpo = `<div class="grid g4 tight mb22">
+      ${statCard('Categorias', s.categorias)}${statCard('Inscrições', s.inscricoes, s.duplas + ' duplas diferentes', 'v2')}
+      ${statCard('Jogos', s.jogos ? s.fim + '/' + s.jogos : '—', 'finalizados', 'v3')}${statCard('Ao vivo', s.live, '', 'v4')}</div>
+      ${s.cats.length ? `<div class="card"><div class="card-h"><h3>Categorias deste evento</h3>
+        <button class="btn btn-s btn-p" id="add-cat">+ Adicionar categoria</button></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Categoria</th><th>Duplas</th><th>Jogos</th><th>Chave</th><th>Situação</th><th></th></tr></thead><tbody>
+        ${s.cats.map(t => {
+      const ms = Q.matches().filter(m => m.tournamentId === t.id && !m.dead);
+      const fim = ms.filter(m => m.status === 'finalizado').length;
+      return `<tr><td><b>${esc(t.name)}</b><div class="mut-s">${esc(t.sport || '')}</div></td>
+          <td class="num">${(t.teamIds || []).length}</td>
+          <td class="num">${ms.length ? fim + '/' + ms.length : '—'}</td>
+          <td>${t.bracketGenerated ? '<span class="badge ok">gerada</span>' : '<span class="badge">pendente</span>'}</td>
+          <td>${statusBadge(t.status)}</td>
+          <td class="right nowrap"><a class="btn btn-s btn-p" href="#/org/torneio/${t.id}">Gerenciar</a>
+            <a class="btn btn-s" href="#/t/${t.slug}" target="_blank">Ao vivo</a></td></tr>`;
+    }).join('')}</tbody></table></div></div>`
+      : vazio('❖', 'Nenhuma categoria ainda',
+        'Adicione as categorias que vão jogar neste dia. Cada uma terá a própria chave e o próprio ranking.',
+        '<button class="btn btn-p" id="add-cat2">+ Adicionar categoria</button>')}`;
+  }
+  if (aba === 'duplas') {
+    corpo = s.cats.length ? s.cats.map(t => {
+      const duplas = (t.teamIds || []).map(id => Q.team(id)).filter(Boolean);
+      return `<div class="card mb14"><div class="card-h"><h3>${esc(t.name)}</h3>
+        <span class="badge">${duplas.length} dupla(s)</span></div>
+        ${duplas.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>
+          ${duplas.map((d, i) => `<tr><td style="width:40px" class="num">${i + 1}</td>
+            <td><b>${esc(d.name || Q.teamName(d.id))}</b>${d.name ? `<div class="mut-s">${esc(Q.teamName(d.id))}</div>` : ''}</td></tr>`).join('')}
+        </tbody></table></div>` : '<div class="card-p mut">Nenhuma dupla inscrita nesta categoria.</div>'}</div>`;
+    }).join('') : '<div class="card card-p mut">Adicione categorias primeiro.</div>';
+  }
+  if (aba === 'partidas') {
+    const ms = s.ms.slice().sort((a, b) => (a.status === 'andamento' ? -1 : 0) - (b.status === 'andamento' ? -1 : 0) || a.seq - b.seq);
+    corpo = ms.length ? `<div class="card"><div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Fase</th><th>Dupla A</th><th>Placar</th><th>Dupla B</th><th>Quadra</th><th>Hora</th><th>Situação</th><th></th></tr></thead>
+      <tbody>${ms.map(m => linhaPartida(m, true)).join('')}</tbody></table></div></div>`
+      : '<div class="card card-p mut">Gere as chaves das categorias para ver as partidas aqui.</div>';
+  }
+  if (aba === 'divulgacao') {
+    corpo = `<div class="grid g2">
+      <div class="card"><div class="card-h"><h3>QR Code do evento</h3></div><div class="card-p center">
+        <div class="qr-box" style="border:1px solid var(--linha)"><canvas id="qr-canvas"></canvas></div>
+        <p class="mut mt14" style="max-width:38ch;margin-left:auto;margin-right:auto">Um único QR Code para o dia inteiro. Quem escanear vê todas as categorias, as duplas inscritas e os jogos ao vivo.</p>
+        <div class="btn-row" style="justify-content:center"><button class="btn btn-d" id="baixar-qr">Baixar PNG</button>
+          <button class="btn" id="imprimir">Imprimir</button></div></div></div>
+      <div class="card"><div class="card-h"><h3>Link público</h3></div><div class="card-p">
+        <div class="field"><label>Endereço do evento</label>
+          <input class="inp" readonly value="${esc(linkEvento(ev))}" onclick="this.select()"></div>
+        <div class="btn-row"><button class="btn btn-p" id="copiar">Copiar link</button>
+          <a class="btn" href="#/tv/${ev.slug}" target="_blank">Abrir telão</a></div>
+        <div class="mt22">
+          <div class="mut-s" style="text-transform:uppercase;letter-spacing:.14em;font-weight:700;margin-bottom:8px">Mensagem pronta para o grupo</div>
+          <div class="card card-p" style="background:var(--areia);box-shadow:none;font-size:13.5px;white-space:pre-wrap">🏐 ${esc(ev.name)}
+📍 ${esc(Q.arenaName(ev.arenaId))} · ${esc(fmtDate(ev.date))}
+${s.categorias} categorias · inscrições e jogos ao vivo:
+${esc(linkEvento(ev))}</div></div>
+      </div></div></div>`;
+  }
+  const html = `<div class="tabs">${abas.map(a => `<a class="tab ${aba === a[0] ? 'on' : ''}" href="#/org/evento/${ev.id}/${a[0]}">${a[1]}</a>`).join('')}</div>${corpo}`;
+  shell(app, MENU_ORG, 'torneios', ev.name, `${Q.arenaName(ev.arenaId)} · ${fmtDate(ev.date)}`,
+    `<a class="btn" href="#/e/${ev.slug}" target="_blank">Página pública</a>
+     <button class="btn btn-d" id="ed-ev">Editar</button>
+     <button class="btn btn-w" id="del-ev">Excluir</button>
+     <button class="btn btn-p" id="add-cat3">+ Categoria</button>`, html);
+  $('#ed-ev').onclick = () => formEvento(ev);
+  $('#del-ev').onclick = () => excluirEvento(ev.id);
+  const novaCat = () => formTorneio(null, ev);
+  $('#add-cat3').onclick = novaCat;
+  if ($('#add-cat')) $('#add-cat').onclick = novaCat;
+  if ($('#add-cat2')) $('#add-cat2').onclick = novaCat;
+  $$('[data-abrir-m]').forEach(b => b.onclick = () => modalResultado(b.dataset.abrirM));
+  if ($('#qr-canvas')) {
+    const url = linkEvento(ev);
+    drawQR($('#qr-canvas'), url, 6);
+    $('#copiar').onclick = () => navigator.clipboard.writeText(url).then(() => toast('Link copiado.', 'ok'), () => toast(url, ''));
+    $('#baixar-qr').onclick = () => {
+      const a = document.createElement('a');
+      a.href = $('#qr-canvas').toDataURL('image/png'); a.download = 'qrcode-' + ev.slug + '.png'; a.click();
+    };
+    $('#imprimir').onclick = () => window.print();
+  }
+}
+
 /* ---------- TORNEIOS ---------- */
-function formTorneio(t) {
+function formTorneio(t, evento) {
   const arenas = Q.arenas();
   if (!arenas.length) { toast('Cadastre uma arena antes de criar um torneio.', 'err'); formArena(); return; }
+  const ev = evento || (t && Q.event(t.eventId));
   const campos = [
-    { k: 'name', label: 'Nome do torneio', req: true, val: t && t.name, ph: 'nome do torneio' },
-    { k: 'arenaId', label: 'Arena', type: 'select', req: true, val: t && t.arenaId, opts: arenas.map(a => ({ v: a.id, t: a.name })) },
+    { k: 'name', label: ev ? 'Nome da categoria' : 'Nome do torneio', req: true, val: t && t.name, ph: 'ex.: Iniciante, Misto, Feminino' },
+    ...(ev ? [] : [{ k: 'arenaId', label: 'Arena', type: 'select', req: true, val: t && t.arenaId, opts: arenas.map(a => ({ v: a.id, t: a.name })) }]),
     { k: 'sport', label: 'Esporte', type: 'select', val: t ? t.sport : 'Futevôlei', half: true, opts: ['Futevôlei', 'Beach tennis', 'Vôlei de praia', 'Padel', 'Tênis', 'Outro'].map(v => ({ v, t: v })) },
     { k: 'category', label: 'Categoria', val: t && t.category, half: true, ph: 'Intermediário' },
-    { k: 'date', label: 'Data', type: 'date', req: true, val: t ? t.date : today(), half: true },
-    { k: 'time', label: 'Horário', type: 'time', val: t ? t.time : '08:00', half: true },
+    ...(ev ? [] : [{ k: 'date', label: 'Data', type: 'date', req: true, val: t ? t.date : today(), half: true }]),
+    { k: 'time', label: 'Horário', type: 'time', val: t ? t.time : (ev ? ev.time : '08:00'), half: true },
     { k: 'format', label: 'Formato', type: 'select', val: t ? t.format : 'double', half: true, opts: [
         { v: 'double', t: 'Eliminatória dupla (vencedores + repescagem)' },
         { v: 'single', t: 'Eliminatória simples — em breve' },
@@ -2398,20 +2612,23 @@ function formTorneio(t) {
     { k: 'description', label: 'Descrição', type: 'textarea', val: t && t.description },
     { k: 'rules', label: 'Regulamento', type: 'textarea', val: t && t.rules }
   ];
-  formModal(t ? 'Editar torneio' : 'Criar torneio', campos, d => {
+  formModal(t ? (ev ? 'Editar categoria' : 'Editar torneio') : (ev ? 'Nova categoria — ' + ev.name : 'Criar torneio'), campos, d => {
+    if (ev) { d.arenaId = ev.arenaId; d.date = ev.date; }
     if (d.format !== 'double') { toast('Nesta versão a chave automática é a eliminatória dupla — o torneio ficou nesse formato.', ''); d.format = 'double'; }
     if (t) { Object.assign(t, d, { banner: d.banner || t.banner }); log('torneio', 'Editou ' + t.name); saveDB(); render(); toast('Torneio salvo.', 'ok'); }
     else {
-      const base = slugify(d.name), usados = DB.tournaments.map(x => x.slug);
-      let slug = base, i = 2; while (usados.includes(slug)) slug = base + '-' + (i++);
+      const baseNome = ev ? (ev.name + ' ' + d.name) : d.name;
+      const slug = slugUnico(baseNome, DB.tournaments.map(x => x.slug).concat(DB.events.map(x => x.slug)));
       const novo = {
         id: uid('trn'), organizationId: Sess.orgId, ...d, slug, teamIds: [], bracketGenerated: false,
+        eventId: ev ? ev.id : null, category: d.category || d.name,
         pointsConfig: (Sess.org().pointsConfig || defaultPoints()), createdAt: Date.now()
       };
       DB.tournaments.push(novo); log('torneio', 'Criou ' + novo.name); saveDB();
-      toast('Torneio criado. Agora inscreva as duplas.', 'ok'); go('#/org/torneio/' + novo.id);
+      toast((ev ? 'Categoria criada' : 'Torneio criado') + '. Agora inscreva as duplas.', 'ok');
+      go('#/org/torneio/' + novo.id);
     }
-  }, t ? 'Salvar' : 'Criar torneio');
+  }, t ? 'Salvar' : (ev ? 'Criar categoria' : 'Criar torneio'));
 }
 function oTorneios(app) {
   const ts = Q.tournaments().slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
@@ -2447,8 +2664,11 @@ function oTorneio(app, params) {
   if (aba === 'classificacao') corpo = tClassificacao(t, ms);
   if (aba === 'divulgacao') corpo = tDivulgacao(t);
   const html = `<div class="tabs">${abas.map(a => `<a class="tab ${aba === a[0] ? 'on' : ''}" href="#/org/torneio/${t.id}/${a[0]}">${a[1]}</a>`).join('')}</div>${corpo}`;
-  shell(app, MENU_ORG, 'torneios', t.name, `${Q.arenaName(t.arenaId)} · ${fmtDate(t.date)}`,
-    `<a class="btn" href="#/t/${t.slug}" target="_blank">Página pública</a>
+  const evPai = Q.event(t.eventId);
+  shell(app, MENU_ORG, 'torneios', t.name,
+    evPai ? `${evPai.name} · ${Q.arenaName(t.arenaId)} · ${fmtDate(t.date)}` : `${Q.arenaName(t.arenaId)} · ${fmtDate(t.date)}`,
+    `${evPai ? `<a class="btn" href="#/org/evento/${evPai.id}">← Voltar ao evento</a>` : ''}
+     <a class="btn" href="#/t/${t.slug}" target="_blank">Página pública</a>
      <a class="btn" href="#/tv/${t.slug}" target="_blank">Telão</a>
      <button class="btn btn-d" id="ed-t">Editar</button>
      <button class="btn btn-w" id="del-t">Excluir</button>
@@ -3119,15 +3339,25 @@ function viewArbitro(app) {
    11.d TELÃO — tela do evento para o televisor da arena
 --------------------------------------------------------------- */
 let TelaoTimer = null, TelaoAba = 0;
-const TELAO_ABAS = [['vivo', 'Placar ao vivo', 14], ['chave', 'Chaveamento', 20], ['tabela', 'Classificação e próximos jogos', 14]];
+const TELAO_ABAS = [['vivo', 'Placar ao vivo', 14], ['chave', 'Chaveamento e categorias', 20], ['tabela', 'Classificação e próximos jogos', 14]];
 function pubTelao(app, slug) {
-  const t = DB.tournaments.find(x => x.slug === slug || x.id === slug);
-  if (!t) return pubNaoEncontrado(app, 'Confira o endereço do telão com o organizador.');
+  const ev = DB.events.find(x => x.slug === slug || x.id === slug);
+  let t = DB.tournaments.find(x => x.slug === slug || x.id === slug);
+  if (!t && !ev) return pubNaoEncontrado(app, 'Confira o endereço do telão com o organizador.');
+  let ms;
+  if (ev) {
+    const ids = DB.tournaments.filter(x => x.eventId === ev.id).map(x => x.id);
+    ms = DB.matches.filter(m => ids.includes(m.tournamentId) && !m.dead).sort((a, b) => a.seq - b.seq);
+    t = { id: ev.id, name: ev.name, arenaId: ev.arenaId, organizationId: ev.organizationId, slug: ev.slug,
+          status: ms.some(m => m.status === 'andamento') ? 'andamento' : ev.status, standings: null, pointsConfig: null, teamIds: [] };
+  }
   const arena = DB.arenas.find(a => a.id === t.arenaId);
   const org = DB.organizations.find(o => o.id === t.organizationId);
-  const ms = DB.matches.filter(m => m.tournamentId === t.id && !m.dead).sort((a, b) => a.seq - b.seq);
+  if (!ev) ms = DB.matches.filter(m => m.tournamentId === t.id && !m.dead).sort((a, b) => a.seq - b.seq);
   const aba = TELAO_ABAS[TelaoAba % TELAO_ABAS.length];
-  const corpo = aba[0] === 'vivo' ? telaoVivo(ms) : aba[0] === 'chave' ? `<div class="tv-fit" id="tv-fit">${renderBracket(ms, true)}</div>` : telaoTabela(t, ms);
+  const corpo = aba[0] === 'vivo' ? telaoVivo(ms)
+    : aba[0] === 'chave' ? (ev ? telaoCategorias(ev, ms) : `<div class="tv-fit" id="tv-fit">${renderBracket(ms, true)}</div>`)
+      : telaoTabela(t, ms);
   app.innerHTML = `<div class="tv">
     <div class="tv-top">
       <div><div class="sub">${esc(org ? org.name : '')} · ${esc(arena ? arena.name : '')}</div><h1>${esc(t.name)}</h1></div>
@@ -3138,7 +3368,7 @@ function pubTelao(app, slug) {
     <div class="tv-body"><div class="tv-cap">${esc(aba[1])}</div>${corpo}
       <div class="tv-qr"><canvas id="tv-qr"></canvas><span>ACOMPANHE NO CELULAR</span></div></div>
     <div class="tv-bar"><i id="tv-prog"></i></div></div>`;
-  const link = location.href.split('#')[0] + '#/t/' + t.slug;
+  const link = location.href.split('#')[0] + (ev ? '#/e/' : '#/t/') + t.slug;
   if ($('#tv-qr')) drawQR($('#tv-qr'), link, 4, 2);
   const prog = $('#tv-prog');
   if (prog) { prog.style.transition = 'none'; prog.style.width = '0'; setTimeout(() => { prog.style.transition = 'width ' + aba[2] + 's linear'; prog.style.width = '100%'; }, 60); }
@@ -3179,6 +3409,15 @@ function telaoVivo(ms) {
     ${prox.length ? `<div class="tv-cap" style="margin-top:14px">A seguir</div><div class="tv-list">${prox.slice(0, 3).map(m => `<div class="r">
       <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.time || (m.courtId ? Q.courtName(m.courtId) : '—'))}</b></div>`).join('')}</div>` : ''}`;
 }
+function telaoCategorias(ev, ms) {
+  const cats = DB.tournaments.filter(x => x.eventId === ev.id).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  return `<div class="tv-list">${cats.map(c => {
+    const mc = ms.filter(m => m.tournamentId === c.id);
+    const fim = mc.filter(m => m.status === 'finalizado').length;
+    const campeao = c.standings && c.standings.length ? '🏆 ' + Q.teamShort(c.standings[0].teamId) : (mc.length ? fim + '/' + mc.length + ' jogos' : 'chave a gerar');
+    return `<div class="r"><span>${esc(c.name)} <span style="opacity:.5">· ${(c.teamIds || []).length} duplas</span></span><b>${esc(campeao)}</b></div>`;
+  }).join('')}</div>`;
+}
 function telaoTabela(t, ms) {
   if (t.standings && t.standings.length) {
     return `<div class="tv-list">${t.standings.slice(0, 10).map(s => `<div class="r">
@@ -3214,6 +3453,103 @@ function pubNaoEncontrado(app, msg) {
   app.innerHTML = pubShell(`<div class="pub-hero"><div class="eyebrow">Ops</div><h1>Link não encontrado</h1>
     <p style="color:rgba(255,255,255,.6)">${esc(msg)}</p></div>`);
 }
+function pubEvento(app, slug, aba) {
+  const ev = DB.events.find(x => x.slug === slug || x.id === slug);
+  if (!ev) return pubNaoEncontrado(app, 'Confira o endereço com o organizador do evento.');
+  aba = aba || 'aovivo';
+  const org = DB.organizations.find(o => o.id === ev.organizationId);
+  const arena = DB.arenas.find(a => a.id === ev.arenaId);
+  const cats = DB.tournaments.filter(t => t.eventId === ev.id)
+    .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+  const idsCat = cats.map(c => c.id);
+  const ms = DB.matches.filter(m => idsCat.includes(m.tournamentId) && !m.dead).sort((a, b) => a.seq - b.seq);
+  const nomeCat = id => { const c = cats.find(x => x.id === id); return c ? c.name : ''; };
+  const inscritas = cats.reduce((a, c) => a + (c.teamIds || []).length, 0);
+  const live = ms.filter(m => m.status === 'andamento');
+  const abas = [['aovivo', 'Ao vivo'], ['categorias', 'Categorias'], ['duplas', 'Duplas inscritas'], ['info', 'Informações']];
+  const situacao = live.length || ev.status === 'andamento'
+    ? '<span class="live-tag"><span class="dot"></span>AO VIVO</span>'
+    : ev.status === 'finalizado' ? '<span class="m" style="background:rgba(239,164,0,.2);color:#FFD27A">Encerrado</span>'
+      : '<span class="m">Inscrições abertas</span>';
+  let corpo = '';
+  if (aba === 'aovivo') {
+    const prox = ms.filter(m => m.status === 'aguardando').slice(0, 10);
+    const ult = ms.filter(m => m.status === 'finalizado' && !m.bye)
+      .sort((a, b) => (b.finishedAt || 0) - (a.finishedAt || 0)).slice(0, 10);
+    const placar = m => {
+      const a = m.scoreA || 0, b = m.scoreB || 0;
+      return `<div class="placar">
+        <div class="placar-h"><span class="quadra">${m.courtId ? `<i>${esc(Q.courtName(m.courtId).replace(/\D/g, '') || '·')}</i> ${esc(Q.courtName(m.courtId))}` : 'Quadra a definir'}</span>
+          <span class="live-tag"><span class="dot"></span>AO VIVO</span></div>
+        <div class="placar-l ${a >= b ? 'lead' : ''}"><div class="dupla">${esc(Q.teamShort(m.teamAId))}<small>${esc(Q.teamName(m.teamAId))}</small></div><div class="pts">${a}</div></div>
+        <div class="placar-l ${b >= a ? 'lead' : ''}"><div class="dupla">${esc(Q.teamShort(m.teamBId))}<small>${esc(Q.teamName(m.teamBId))}</small></div><div class="pts">${b}</div></div>
+        <div class="placar-f"><span>${esc(nomeCat(m.tournamentId))} · ${esc(m.label)}</span><span>${esc(m.time || '')}</span></div></div>`;
+    };
+    corpo = `${live.length ? `<div class="sec-cap">Acontecendo agora</div>${live.map(placar).join('')}`
+      : `<div class="pub-card"><h3>Nenhum jogo em quadra agora</h3>
+          <p style="color:rgba(255,255,255,.6);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui sozinho — sem precisar atualizar a página.</p></div>`}
+      ${prox.length ? `<div class="sec-cap">Próximos jogos</div><div class="pub-card">
+        ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:rgba(255,255,255,.35)">x</span> ${esc(Q.teamShort(m.teamBId))}
+          <small>${esc(nomeCat(m.tournamentId))}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
+          <div class="r">${esc(m.time || '—')}</div></div>`).join('')}</div>` : ''}
+      ${ult.length ? `<div class="sec-cap">Últimos resultados</div><div class="pub-card">
+        ${ult.map(m => `<div class="row-jogo"><div class="t">
+          <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
+          <span style="color:rgba(255,255,255,.35)"> x </span>
+          <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
+          <small>${esc(nomeCat(m.tournamentId))} · ${esc(m.label)}</small></div>
+          <div class="r">${m.scoreA} x ${m.scoreB}</div></div>`).join('')}</div>` : ''}`;
+  }
+  if (aba === 'categorias') {
+    corpo = cats.length ? `<div class="sec-cap">${cats.length} categorias</div><div class="pub-card">
+      ${cats.map(c => {
+      const mc = ms.filter(m => m.tournamentId === c.id);
+      const fim = mc.filter(m => m.status === 'finalizado').length;
+      const campeao = c.standings && c.standings.length ? Q.teamShort(c.standings[0].teamId) : null;
+      return `<div class="row-jogo"><div class="t">${esc(c.name)}
+          <small>${(c.teamIds || []).length} duplas${mc.length ? ' · ' + fim + '/' + mc.length + ' jogos' : ''}${campeao ? ' · 🏆 ' + esc(campeao) : ''}</small></div>
+          <a class="pub-tab" href="#/t/${c.slug}">abrir</a></div>`;
+    }).join('')}</div>`
+      : `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">As categorias ainda não foram divulgadas.</p></div>`;
+  }
+  if (aba === 'duplas') {
+    corpo = cats.length ? cats.map(c => {
+      const duplas = (c.teamIds || []).map(id => Q.team(id)).filter(Boolean);
+      return `<div class="sec-cap">${esc(c.name)} · ${duplas.length} dupla(s)</div>
+        <div class="pub-card">${duplas.length ? `<div class="pill-list">
+          ${duplas.map(d => `<span class="pill"><b>dupla</b>${esc(Q.teamName(d.id))}</span>`).join('')}</div>`
+        : '<p style="color:rgba(255,255,255,.55);margin:0">Nenhuma dupla inscrita ainda.</p>'}</div>`;
+    }).join('') : `<div class="pub-card"><p style="color:rgba(255,255,255,.6);margin:0">Ainda não há categorias abertas.</p></div>`;
+  }
+  if (aba === 'info') {
+    corpo = `<div class="sec-cap">Informações</div>
+      <div class="pub-card"><div class="pill-list">
+        <span class="pill"><b>organizador</b>${esc(org ? org.name : '—')}</span>
+        <span class="pill"><b>arena</b>${esc(arena ? arena.name : '—')}</span>
+        <span class="pill"><b>data</b>${esc(fmtDate(ev.date))}${ev.time ? ' · ' + esc(ev.time) : ''}</span>
+        <span class="pill"><b>categorias</b>${cats.length}</span>
+        <span class="pill"><b>inscrições</b>${inscritas}</span>
+      </div>
+      ${ev.description ? `<p style="color:rgba(255,255,255,.75);margin:16px 0 0">${esc(ev.description)}</p>` : ''}</div>
+      ${ev.rules ? `<div class="sec-cap">Regulamento</div><div class="pub-card">
+        <p style="color:rgba(255,255,255,.75);margin:0;white-space:pre-wrap">${esc(ev.rules)}</p></div>` : ''}
+      ${arena ? `<div class="sec-cap">Onde é</div><div class="pub-card">
+        <h3>${esc(arena.name)}</h3>
+        <p style="color:rgba(255,255,255,.7);margin:6px 0 0">${esc([arena.address, arena.city, arena.state].filter(Boolean).join(' · ') || 'endereço não informado')}</p>
+        ${arena.phone ? `<p style="color:rgba(255,255,255,.7);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}
+        <a class="pub-tab" style="display:inline-block;margin-top:12px" href="#/arena/${arena.id}">Ver a arena →</a></div>` : ''}`;
+  }
+  app.innerHTML = pubShell(`
+    <div class="pub-hero">
+      <div class="eyebrow">${esc(org ? org.name : '')} · ${esc(arena ? arena.name : '')}</div>
+      <h1>${esc(ev.name)}</h1>
+      <div class="pub-meta">${situacao}<span class="m">${esc(fmtDate(ev.date))}${ev.time ? ' · ' + esc(ev.time) : ''}</span>
+        <span class="m">${cats.length} categorias</span><span class="m">${inscritas} duplas inscritas</span></div>
+    </div>
+    <div class="pub-tabs">${abas.map(a => `<a class="pub-tab ${aba === a[0] ? 'on' : ''}" href="#/e/${ev.slug}/${a[0]}">${a[1]}</a>`).join('')}</div>
+    ${corpo}`);
+}
+
 function pubTorneio(app, slug, aba) {
   const t = DB.tournaments.find(x => x.slug === slug || x.id === slug);
   if (!t) return pubNaoEncontrado(app, 'Confira o endereço com o organizador do torneio.');
