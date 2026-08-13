@@ -346,6 +346,17 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .podio .p.p1 .pos{color:#9E6C00}
 .podio .p .nm{font-size:12.5px;font-weight:700;margin-top:6px;color:var(--tinta)}
 .podio .p .pt{font-family:var(--mono);font-size:12px;color:var(--txt-2)}
+.acc{border-bottom:1px solid var(--linha-f)}
+.acc:last-of-type{border-bottom:none}
+.acc>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 0}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary:hover .nm{color:var(--coral)}
+.acc .seta{color:var(--txt-3);transition:.18s;font-size:12px;flex:none}
+.acc[open] .seta{transform:rotate(90deg)}
+.acc .nm{font-weight:700;color:var(--tinta);font-size:14.5px;transition:.15s}
+.acc small{display:block;font-size:11px;color:var(--txt-3);letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.acc .cats{margin:0 0 12px 8px;padding-left:14px;border-left:2px solid var(--areia-2)}
+.acc .cats .row-jogo{padding:9px 0}
 .pill-list{display:flex;flex-wrap:wrap;gap:8px}
 .pill{background:var(--papel);border:1px solid var(--linha);border-radius:11px;padding:9px 12px;font-size:13px;color:var(--txt)}
 .pill b{display:block;font-size:10px;letter-spacing:.12em;color:var(--txt-3);text-transform:uppercase;font-weight:700}
@@ -3758,16 +3769,45 @@ function pubInfo(t, org, arena) {
       ${arena.phone ? `<p style="color:var(--txt-2);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}
       <a class="pub-tab" style="display:inline-block;margin-top:12px" href="#/arena/${arena.id}">Ver a arena →</a></div>` : ''}`;
 }
+/* lista de eventos com as categorias dentro, para as páginas públicas */
+function listaEventos(evs, torneios, semArena) {
+  const soltos = torneios.filter(t => !t.eventId);
+  evs = (evs || []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  if (!evs.length && !soltos.length) return '';
+  const bloco = ev => {
+    const cats = torneios.filter(t => t.eventId === ev.id)
+      .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    const duplas = cats.reduce((n, c) => n + (c.teamIds || []).length, 0);
+    return `<details class="acc">
+      <summary><span class="seta">▶</span>
+        <div style="flex:1;min-width:0"><span class="nm">${esc(ev.name)}</span>
+          <small>${esc(fmtDate(ev.date))}${semArena ? '' : ' · ' + esc(Q.arenaName(ev.arenaId))} · ${pl(cats.length, 'categoria')}${duplas ? ' · ' + pl(duplas, 'dupla') : ''}</small></div>
+        <span class="pub-tab" style="pointer-events:none">${cats.length}</span></summary>
+      <div class="cats">
+        ${cats.length ? cats.map(c => {
+      const campeao = c.standings && c.standings.length ? Q.teamShort(c.standings[0].teamId) : null;
+      return `<div class="row-jogo"><div class="t">${esc(c.name)}
+            <small>${pl((c.teamIds || []).length, 'dupla')}${campeao ? ' · 🏆 ' + esc(campeao) : ''}</small></div>
+            <a class="pub-tab" href="#/t/${c.slug}">abrir</a></div>`;
+    }).join('') : '<div class="row-jogo"><div class="t" style="color:var(--txt-3)">Categorias ainda não divulgadas.</div></div>'}
+        <div class="row-jogo"><div class="t"></div><a class="pub-tab" href="#/e/${ev.slug}">ver o evento inteiro →</a></div>
+      </div></details>`;
+  };
+  return `${evs.length ? `<div class="sec-cap">Eventos</div>
+    <div class="pub-card" style="padding:2px 16px">${evs.map(bloco).join('')}</div>` : ''}
+    ${soltos.length ? `<div class="sec-cap">Torneios avulsos</div>
+    <div class="pub-card" style="padding:2px 16px">${soltos.map(t => `<div class="row-jogo">
+      <div class="t">${esc(t.name)}<small>${esc(fmtDate(t.date))}</small></div>
+      <a class="pub-tab" href="#/t/${t.slug}">abrir</a></div>`).join('')}</div>` : ''}`;
+}
+
 function pubArena(app, id) {
   const a = DB.arenas.find(x => x.id === id);
   if (!a) return pubNaoEncontrado(app, 'Essa arena não está mais disponível.');
   const s = orgStats(a.organizationId, { arenaId: a.id });
   const org = DB.organizations.find(o => o.id === a.organizationId);
   const ts = DB.tournaments.filter(t => t.arenaId === a.id).sort((x, y) => String(y.date).localeCompare(String(x.date)));
-  const prox = ts.filter(t => t.status !== 'finalizado'), ant = ts.filter(t => t.status === 'finalizado');
-  const lista = arr => `<div class="pub-card">${arr.map(t => `<div class="row-jogo"><div class="t">${esc(t.name)}
-      <small>${esc(fmtDate(t.date))}${t.category ? ' · ' + esc(t.category) : ''}</small></div>
-      <a class="pub-tab" href="#/t/${t.slug}">abrir</a></div>`).join('')}</div>`;
+  const evsArena = DB.events.filter(e => e.arenaId === a.id);
   app.innerHTML = pubShell(`
     <div class="pub-hero"><div class="eyebrow">${esc(org ? org.name : '')}</div><h1>${esc(a.name)}</h1>
       <div class="pub-meta"><span class="m">${esc([a.address, a.city, a.state].filter(Boolean).join(' · ') || 'endereço não informado')}</span>
@@ -3777,8 +3817,7 @@ function pubArena(app, id) {
       <span class="pill"><b>duplas</b>${num(s.teams)}</span><span class="pill"><b>jogos</b>${num(s.matches)}</span>
       <span class="pill"><b>quadras</b>${DB.courts.filter(c => c.arenaId === a.id).length}</span></div>
       ${a.description ? `<p style="color:var(--txt);margin:16px 0 0">${esc(a.description)}</p>` : ''}</div>
-    ${prox.length ? `<div class="sec-cap">Próximos torneios</div>${lista(prox)}` : ''}
-    ${ant.length ? `<div class="sec-cap">Torneios anteriores</div>${lista(ant)}` : ''}`);
+    ${listaEventos(evsArena, ts, true)}`);
 }
 function pubOrganizador(app, slug) {
   const o = DB.organizations.find(x => x.slug === slug || x.id === slug);
@@ -3794,9 +3833,7 @@ function pubOrganizador(app, slug) {
     ${arenas.length ? `<div class="sec-cap">Arenas</div><div class="pub-card">${arenas.map(a => `<div class="row-jogo">
       <div class="t">${esc(a.name)}<small>${esc([a.city, a.state].filter(Boolean).join('/'))}</small></div>
       <a class="pub-tab" href="#/arena/${a.id}">abrir</a></div>`).join('')}</div>` : ''}
-    ${ts.length ? `<div class="sec-cap">Torneios</div><div class="pub-card">${ts.slice(0, 12).map(t => `<div class="row-jogo">
-      <div class="t">${esc(t.name)}<small>${esc(fmtDate(t.date))} · ${esc(Q.arenaName(t.arenaId))}</small></div>
-      <a class="pub-tab" href="#/t/${t.slug}">abrir</a></div>`).join('')}</div>` : ''}
+    ${listaEventos(scoped('events', o.id), ts)}
     ${rank.length ? `<div class="sec-cap">Ranking</div><div class="pub-card">${rank.map((x, i) => `<div class="row-jogo">
       <div class="t" style="display:flex;align-items:center;gap:10px">
         <span style="width:26px;text-align:center;font-size:${i < 3 ? '17px' : '13px'};font-family:var(--mono)">${i < 3 ? TROFEU[i] : (i + 1)}</span>
