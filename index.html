@@ -334,6 +334,8 @@ table.tbl tbody tr:hover{background:rgba(14,36,54,.025)}
 .row-jogo .t small{display:block;font-size:10.5px;color:var(--txt-3);letter-spacing:.08em;text-transform:uppercase}
 .row-jogo .r{font-family:var(--mono);font-size:15px;color:var(--tinta);flex:none;font-weight:700}
 .win-nm{color:#0A7A54;font-weight:700}
+.venceu{color:#0A7A54;font-weight:700}
+.arb .venceu{color:#6BF2B0}
 .pub-foot{text-align:center;padding:34px 0 10px;color:var(--txt-3);font-size:12px}
 .qr-box{background:#fff;padding:14px;border-radius:14px;display:inline-block}
 .qr-box canvas{display:block;image-rendering:pixelated;width:200px;height:200px}
@@ -461,6 +463,16 @@ const today = () => new Date().toISOString().slice(0, 10);
 const fmtDate = d => { if (!d) return '—'; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; };
 const fmtDT = ts => { const d = new Date(ts); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
+const pl = (n, sing, plur) => num(n) + ' ' + (Number(n) === 1 ? sing : (plur || sing + 's'));
+/* placar com o vencedor em verde e o perdedor em vermelho */
+function placarCor(m, tam) {
+  if (m.scoreA == null || m.scoreB == null) return '<span class="mut">—</span>';
+  const venceuA = m.winnerId ? m.winnerId === m.teamAId : m.scoreA > m.scoreB;
+  const st = tam ? `font-size:${tam};` : '';
+  return `<b style="${st}color:${venceuA ? 'var(--verde)' : 'var(--vermelho)'}">${m.scoreA}</b>` +
+    `<span class="mut-s" style="margin:0 5px">x</span>` +
+    `<b style="${st}color:${venceuA ? 'var(--vermelho)' : 'var(--verde)'}">${m.scoreB}</b>`;
+}
 
 function toast(msg, type) {
   const el = document.createElement('div');
@@ -1626,11 +1638,6 @@ function viewLogin(app) {
           <span class="tagx">Arenas</span><span class="tagx">Classificação</span>
           <span class="tagx forte">Gestão</span>
         </div>
-        <div class="login-para">
-          <div><b>Organizadores</b><span>mais controle e menos trabalho.</span></div>
-          <div><b>Participantes</b><span>tudo na palma da mão.</span></div>
-          <div><b>Público</b><span>acompanha ao vivo, sem login e sem aplicativo.</span></div>
-        </div>
       </div>
       <div class="login-stats">
         <div><span>${num(st.orgsTotal)}</span><small>Organizadores</small></div>
@@ -1653,7 +1660,7 @@ function viewLogin(app) {
         ? `<span style="color:var(--vermelho)">Sem conexão com a nuvem: ${esc(Nuvem.erro)}</span>`
         : '<b style="color:var(--verde)">● Conectado à nuvem.</b> Seus dados ficam no banco e aparecem em qualquer aparelho.'}</div>`
       : `<div class="hint" style="margin-bottom:8px">Modo local: os dados ficam só neste navegador. O administrador padrão é <b>master</b> / <b>gbr2026</b>.</div>`}
-        <button class="btn btn-s" id="cfg-nuvem" style="margin-top:4px">Configurar nuvem</button>
+        ${Nuvem.erro ? '<button class="btn btn-s" id="cfg-nuvem" style="margin-top:4px">Configurar nuvem</button>' : ''}
       </div>
     </div></div></div>`;
   const tentar = async () => {
@@ -1718,7 +1725,11 @@ function shell(app, menu, ativo, titulo, crumb, acoes, conteudo) {
   const nome = Sess.impersonating ? org.name : u.name;
   const papel = Sess.impersonating ? 'Suporte GBR · ambiente do cliente' : (u.role === 'master' ? 'Administrador master' : 'Organizador');
   const nav = menu.map(m => `<a class="nav-i ${m.k === ativo ? 'on' : ''}" href="${m.h}"><span class="ic">${m.i}</span>${m.t}</a>`).join('');
-  const mob = menu.slice(0, 5).map(m => `<a class="${m.k === ativo ? 'on' : ''}" href="${m.h}"><span class="ic">${m.i}</span>${m.t}</a>`).join('');
+  const visiveis = menu.slice(0, 4);
+  const restantes = menu.slice(4);
+  const noMais = restantes.some(m => m.k === ativo);
+  const mob = visiveis.map(m => `<a class="${m.k === ativo ? 'on' : ''}" href="${m.h}"><span class="ic">${m.i}</span>${m.t}</a>`).join('')
+    + (restantes.length ? `<a class="${noMais ? 'on' : ''}" id="mob-mais" href="javascript:void(0)"><span class="ic">☰</span>Mais</a>` : '');
   app.innerHTML = `<div class="shell">
     <aside class="side">
       <div class="brand"><div class="brand-mark">G</div><div class="brand-name">GBR<small>Connect</small></div></div>
@@ -1747,6 +1758,13 @@ function shell(app, menu, ativo, titulo, crumb, acoes, conteudo) {
   </div>`;
   const sair = () => confirmar('Sair da plataforma', 'Você será desconectado deste navegador.', () => Sess.logout(), 'Sair');
   $('#btn-sair').onclick = sair; $('#btn-sair-m').onclick = sair;
+  if ($('#mob-mais')) $('#mob-mais').onclick = () => {
+    openModal('Menu', `<div class="grid" style="grid-template-columns:1fr 1fr;gap:8px">
+      ${menu.map(m => `<a class="btn ${m.k === ativo ? 'btn-d' : ''}" href="${m.h}" data-fechar="1"
+        style="justify-content:flex-start;padding:13px 14px"><span style="width:20px">${m.i}</span>${m.t}</a>`).join('')}</div>`,
+      `<button class="btn" data-close="1">Fechar</button>`,
+      root => { $$('[data-fechar]', root).forEach(a => a.onclick = () => setTimeout(closeModal, 30)); });
+  };
   if ($('#sair-org')) $('#sair-org').onclick = () => Sess.exitOrg();
   if ($('#sair-org2')) $('#sair-org2').onclick = () => Sess.exitOrg();
 }
@@ -2168,8 +2186,12 @@ function oDashboard(app) {
       : '<div class="empty" style="padding:28px"><p class="mut">Nenhum torneio no período selecionado.</p></div>'}</div>
       <div class="card"><div class="card-h"><h3>Últimos resultados</h3></div>
         ${ult.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>${ult.map(m => `<tr>
-          <td>${esc(Q.teamShort(m.teamAId))} <b class="num">${m.scoreA} x ${m.scoreB}</b> ${esc(Q.teamShort(m.teamBId))}
-          <div class="mut-s">${esc(nomeTorneio(m.tournamentId))} · ${esc(m.label)}</div></td></tr>`).join('')}</tbody></table></div>`
+          <td><div class="mut-s" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:3px">${esc(m.label)} · ${esc(nomeTorneio(m.tournamentId))}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="${m.winnerId === m.teamAId ? 'venceu' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
+            <span class="num">${placarCor(m)}</span>
+            <span class="${m.winnerId === m.teamBId ? 'venceu' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
+          </div></td></tr>`).join('')}</tbody></table></div>`
       : '<div class="empty" style="padding:28px"><p class="mut">Nenhum jogo finalizado ainda.</p></div>'}</div>
     </div>
     <div class="card"><div class="card-h"><h3>Consolidado por arena</h3><span class="mut-s">agregação real, sem duplicar registros</span></div>
@@ -2511,7 +2533,7 @@ function oEventos(app) {
     return `<div class="card"><div class="card-p">
       <div class="flexb mb14"><span class="mut-s">${esc(fmtDate(ev.date))} · ${esc(Q.arenaName(ev.arenaId))}</span>${statusBadge(ev.status)}</div>
       <h3 style="font-size:21px;text-transform:uppercase;margin-bottom:6px">${esc(ev.name)}</h3>
-      <div class="mut-s mb14">${s.categorias} categoria(s) · ${s.inscricoes} inscrição(ões) · ${s.duplas} dupla(s)</div>
+      <div class="mut-s mb14">${pl(s.categorias, 'categoria')} · ${pl(s.inscricoes, 'dupla inscrita', 'duplas inscritas')}</div>
       <div class="bar mb14"><i style="width:${pct(s.fim, s.jogos)}%"></i></div>
       <div class="flexb mb14"><span class="mut-s">${s.fim}/${s.jogos} jogos</span>
         ${s.live ? `<span class="badge live"><span class="dot"></span>${s.live} ao vivo</span>` : ''}</div>
@@ -2564,7 +2586,7 @@ function oEvento(app, params) {
     corpo = s.cats.length ? s.cats.map(t => {
       const duplas = (t.teamIds || []).map(id => Q.team(id)).filter(Boolean);
       return `<div class="card mb14"><div class="card-h"><h3>${esc(t.name)}</h3>
-        <span class="badge">${duplas.length} dupla(s)</span></div>
+        <span class="badge">${pl(duplas.length, 'dupla')}</span></div>
         ${duplas.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>
           ${duplas.map((d, i) => `<tr><td style="width:40px" class="num">${i + 1}</td>
             <td><b>${esc(d.name || Q.teamName(d.id))}</b>${d.name ? `<div class="mut-s">${esc(Q.teamName(d.id))}</div>` : ''}</td></tr>`).join('')}
@@ -2751,7 +2773,7 @@ function oTorneio(app, params) {
 }
 function semChave(t) {
   return vazio('▲', 'A chave ainda não foi gerada',
-    `Você tem <b>${(t.teamIds || []).length}</b> dupla(s) inscrita(s). Ao gerar, o sistema monta o winners e o losers bracket e controla os avanços sozinho.`,
+    `Você tem <b>${(t.teamIds || []).length}</b> ${(t.teamIds || []).length === 1 ? 'dupla inscrita' : 'duplas inscritas'}. Ao gerar, o sistema monta a chave dos vencedores e a repescagem e controla os avanços sozinho.`,
     `<a class="btn btn-p" href="#/org/torneio/${t.id}/duplas">Gerenciar duplas</a>`);
 }
 function linkPublico(t) {
@@ -2864,7 +2886,9 @@ function matchBox(m, publico) {
   const side = (id, sc, win) => {
     const nome = id ? Q.teamShort(id) : '—';
     const c = m.winnerId ? (win ? 'win' : 'los') : '';
-    return `<div class="br-s ${c}">${fotosDupla(id)}<span class="nm">${esc(nome)}</span><span class="sc">${sc == null ? '' : sc}</span></div>`;
+    const cor = m.winnerId && sc != null ? (win ? 'var(--verde)' : 'var(--vermelho)') : '';
+    return `<div class="br-s ${c}">${fotosDupla(id)}<span class="nm">${esc(nome)}</span>
+      <span class="sc" style="${cor ? 'color:' + cor + ';font-weight:800' : ''}">${sc == null ? '' : sc}</span></div>`;
   };
   return `<div class="br-m ${cls}" ${publico ? '' : `data-abrir-m="${m.id}"`} title="${esc(m.label)}">
     ${m.bracket === 'F' ? `<span class="br-tag">${m.isReset ? 'Final — desempate' : 'Grande final'}</span>` : ''}
@@ -2875,10 +2899,10 @@ function matchBox(m, publico) {
 function linhaPartida(m, comTorneio) {
   const st = m.status === 'andamento' ? '<span class="badge live"><span class="dot"></span>Ao vivo</span>' : statusBadge(m.status);
   return `<tr><td class="nowrap"><span class="badge">${esc(m.bracket === 'W' ? 'V' : m.bracket === 'L' ? 'R' : 'F')}${m.bracket === 'F' ? '' : m.round}</span>
-      <span class="mut-s"> ${esc(m.label)}</span>${comTorneio ? `<div class="mut-s">${esc(nomeTorneio(m.tournamentId))}</div>` : ''}</td>
-    <td><b>${esc(Q.teamName(m.teamAId) || (m.bye ? 'sem adversário' : 'a definir'))}</b></td>
-    <td class="num center" style="min-width:70px">${m.scoreA == null ? '—' : m.scoreA + ' x ' + m.scoreB}</td>
-    <td><b>${esc(Q.teamName(m.teamBId) || (m.bye ? 'sem adversário' : 'a definir'))}</b></td>
+      <div class="mut-s">${esc(m.label)}${comTorneio ? '<br>' + esc(nomeTorneio(m.tournamentId)) : ''}</div></td>
+    <td><b class="${m.winnerId === m.teamAId ? 'venceu' : ''}">${esc(Q.teamName(m.teamAId) || (m.bye ? 'sem adversário' : 'a definir'))}</b></td>
+    <td class="num center nowrap" style="min-width:78px">${placarCor(m)}</td>
+    <td><b class="${m.winnerId === m.teamBId ? 'venceu' : ''}">${esc(Q.teamName(m.teamBId) || (m.bye ? 'sem adversário' : 'a definir'))}</b></td>
     <td>${esc(m.courtId ? Q.courtName(m.courtId) : '—')}</td><td class="num">${esc(m.time || '—')}</td><td>${st}</td>
     <td class="right"><button class="btn btn-s ${m.status === 'finalizado' ? '' : 'btn-p'}" data-abrir-m="${m.id}"
       ${(!m.teamAId || !m.teamBId) ? 'disabled' : ''}>${m.status === 'finalizado' ? 'Editar' : 'Lançar'}</button></td></tr>`;
@@ -3324,7 +3348,7 @@ function viewArbitro(app) {
         <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
         <span style="opacity:.4"> x </span>
         <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
-        <small>${esc(m.label)}</small></div><div class="r">${m.scoreA} x ${m.scoreB}</div></div>`).join('')}</div>` : ''}
+        <small>${esc(m.label)}</small></div><div class="r">${placarCor(m)}</div></div>`).join('')}</div>` : ''}
     <div class="pub-foot">Marcou aqui, atualizou na hora para o público e no telão.</div>
   </div></div>`;
   $('#ab-sair').onclick = sair;
@@ -3443,7 +3467,7 @@ function telaoVivo(ms) {
         <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.time || (m.courtId ? Q.courtName(m.courtId) : '—'))}</b></div>`).join('')
       : '<div class="r"><span>Aguardando a próxima rodada.</span></div>'}</div></div>
       <div><div class="tv-cap">Últimos resultados</div><div class="tv-list">${ult.length ? ult.map(m => `<div class="r">
-        <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${m.scoreA} x ${m.scoreB}</b></div>`).join('')
+        <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${placarCor(m)}</b></div>`).join('')
       : '<div class="r"><span>Nenhum jogo finalizado ainda.</span></div>'}</div></div></div>`;
   }
   return `<div class="tv-grid" style="grid-template-columns:repeat(${ao.length > 1 ? 2 : 1},1fr)">${ao.slice(0, 4).map(pl).join('')}</div>
@@ -3560,7 +3584,7 @@ function pubEvento(app, slug, aba) {
           <span style="color:var(--txt-3)"> x </span>
           <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
           <small>${esc(nomeCat(m.tournamentId))} · ${esc(m.label)}</small></div>
-          <div class="r">${m.scoreA} x ${m.scoreB}</div></div>`).join('')}</div>` : ''}`;
+          <div class="r">${placarCor(m)}</div></div>`).join('')}</div>` : ''}`;
   }
   if (aba === 'categorias') {
     corpo = cats.length ? `<div class="sec-cap">${cats.length} categorias</div><div class="pub-card">
@@ -3569,7 +3593,7 @@ function pubEvento(app, slug, aba) {
       const fim = mc.filter(m => m.status === 'finalizado').length;
       const campeao = c.standings && c.standings.length ? Q.teamShort(c.standings[0].teamId) : null;
       return `<div class="row-jogo"><div class="t">${esc(c.name)}
-          <small>${(c.teamIds || []).length} duplas${mc.length ? ' · ' + fim + '/' + mc.length + ' jogos' : ''}${campeao ? ' · 🏆 ' + esc(campeao) : ''}</small></div>
+          <small>${pl((c.teamIds || []).length, 'dupla')}${mc.length ? ' · ' + fim + '/' + mc.length + ' jogos' : ''}${campeao ? ' · 🏆 ' + esc(campeao) : ''}</small></div>
           <a class="pub-tab" href="#/t/${c.slug}">abrir</a></div>`;
     }).join('')}</div>`
       : `<div class="pub-card"><p style="color:var(--txt-2);margin:0">As categorias ainda não foram divulgadas.</p></div>`;
@@ -3577,10 +3601,12 @@ function pubEvento(app, slug, aba) {
   if (aba === 'duplas') {
     corpo = cats.length ? cats.map(c => {
       const duplas = (c.teamIds || []).map(id => Q.team(id)).filter(Boolean);
-      return `<div class="sec-cap">${esc(c.name)} · ${duplas.length} dupla(s)</div>
-        <div class="pub-card">${duplas.length ? `<div class="pill-list">
-          ${duplas.map(d => `<span class="pill"><b>dupla</b>${esc(Q.teamName(d.id))}</span>`).join('')}</div>`
-        : '<p style="color:var(--txt-3);margin:0">Nenhuma dupla inscrita ainda.</p>'}</div>`;
+      return `<div class="sec-cap">${esc(c.name)} · ${pl(duplas.length, 'dupla')}</div>
+        <div class="pub-card" style="padding:6px 16px">${duplas.length
+        ? duplas.map((d, i) => `<div class="row-jogo"><div class="t" style="display:flex;gap:12px;align-items:center">
+            <span class="num" style="color:var(--txt-3);min-width:22px">${i + 1}</span>
+            <b>${esc(Q.teamName(d.id))}</b></div></div>`).join('')
+        : '<p style="color:var(--txt-3);margin:12px 0">Nenhuma dupla inscrita ainda.</p>'}</div>`;
     }).join('') : `<div class="pub-card"><p style="color:var(--txt-2);margin:0">Ainda não há categorias abertas.</p></div>`;
   }
   if (aba === 'info') {
@@ -3606,7 +3632,7 @@ function pubEvento(app, slug, aba) {
       <div class="eyebrow">${esc(org ? org.name : '')} · ${esc(arena ? arena.name : '')}</div>
       <h1>${esc(ev.name)}</h1>
       <div class="pub-meta">${situacao}<span class="m">${esc(fmtDate(ev.date))}${ev.time ? ' · ' + esc(ev.time) : ''}</span>
-        <span class="m">${cats.length} categorias</span><span class="m">${inscritas} duplas inscritas</span></div>
+        <span class="m">${pl(cats.length, 'categoria')}</span><span class="m">${pl(inscritas, 'dupla inscrita', 'duplas inscritas')}</span></div>
     </div>
     <div class="pub-tabs">${abasHTML(abas, aba, k => `#/e/${ev.slug}/${k}`)}</div>
     ${corpo}`);
@@ -3638,9 +3664,8 @@ function pubTorneio(app, slug, aba) {
       <div class="eyebrow">${esc(org ? org.name : '')} · ${esc(arena ? arena.name : '')}</div>
       <h1>${esc(t.name)}</h1>
       <div class="pub-meta">${status}<span class="m">${esc(fmtDate(t.date))}${t.time ? ' · ' + esc(t.time) : ''}</span>
-        ${t.category ? `<span class="m">${esc(t.category)}</span>` : ''}
         ${t.sport ? `<span class="m">${esc(t.sport)}</span>` : ''}
-        <span class="m">${(t.teamIds || []).length} duplas</span></div>
+        <span class="m">${pl((t.teamIds || []).length, 'dupla')}</span></div>
     </div>
     <div class="pub-tabs">${abasHTML(abas, aba, k => `#/t/${t.slug}/${k}`)}</div>
     ${corpo}`);
@@ -3670,7 +3695,7 @@ function pubAoVivo(t, ms) {
         <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
         <span style="color:var(--txt-3)"> x </span>
         <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId))}</span>
-        <small>${esc(m.label)}</small></div><div class="r">${m.scoreA} x ${m.scoreB}</div></div>`).join('')}</div>` : ''}`;
+        <small>${esc(m.label)}</small></div><div class="r">${placarCor(m)}</div></div>`).join('')}</div>` : ''}`;
 }
 function pubJogos(ms) {
   if (!ms.length) return `<div class="pub-card"><p style="color:var(--txt-2);margin:0">Os jogos aparecem aqui quando a chave for gerada.</p></div>`;
@@ -3681,7 +3706,7 @@ function pubJogos(ms) {
       <span style="color:var(--txt-3)"> x </span>
       <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId) || (m.bye ? 'sem adversário' : 'a definir'))}</span>
       <small>${esc(m.label)}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
-      <div class="r">${m.status === 'finalizado' ? (m.bye ? 'passou direto' : m.scoreA + ' x ' + m.scoreB) : m.status === 'andamento' ? '● ao vivo' : (m.time || '—')}</div></div>`).join('')}
+      <div class="r">${m.status === 'finalizado' ? (m.bye ? '<span class="mut-s">passou direto</span>' : placarCor(m)) : m.status === 'andamento' ? '<span style="color:var(--vermelho)">● ao vivo</span>' : (m.time || '—')}</div></div>`).join('')}
     </div>`).join('');
 }
 function pubClassificacao(t, ms) {
@@ -3708,8 +3733,11 @@ function pubClassificacao(t, ms) {
 function pubParticipantes(t) {
   const duplas = (t.teamIds || []).map(id => Q.team(id)).filter(Boolean);
   if (!duplas.length) return `<div class="pub-card"><p style="color:var(--txt-2);margin:0">As duplas ainda não foram divulgadas.</p></div>`;
-  return `<div class="sec-cap">${duplas.length} duplas</div><div class="pub-card"><div class="pill-list">
-    ${duplas.map(d => `<span class="pill"><b>dupla</b>${esc(Q.teamName(d.id))}</span>`).join('')}</div></div>`;
+  return `<div class="sec-cap">${pl(duplas.length, 'dupla')}</div>
+    <div class="pub-card" style="padding:6px 16px">${duplas.map((d, i) => `<div class="row-jogo">
+      <div class="t" style="display:flex;gap:12px;align-items:center">
+        <span class="num" style="color:var(--txt-3);min-width:22px">${i + 1}</span>
+        <b>${esc(Q.teamName(d.id))}</b></div></div>`).join('')}</div>`;
 }
 function pubInfo(t, org, arena) {
   return `<div class="sec-cap">Informações</div>
