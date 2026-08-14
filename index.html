@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>GBR Connect — Gestão de Torneios</title>
+<title>GBR Connect | Gestão de Torneios</title>
 <meta name="theme-color" content="#0E2436">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -93,6 +93,95 @@ input,select,textarea{font-family:inherit;font-size:14px}
 @media(max-width:860px){.login-wrap{grid-template-columns:1fr}.login-art{padding:26px 22px;min-height:auto}
   .login-art h1{font-size:25px}.login-art .net{display:none}.login-stats{gap:20px}
   .login-art{gap:22px}.login-bullets{gap:7px;margin-top:22px;padding-top:16px}}
+
+/* ============ PÁGINA DE APRESENTAÇÃO ============ */
+.lp{background:var(--areia);color:var(--txt);overflow-x:hidden}
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:80;display:flex;align-items:center;justify-content:space-between;
+  gap:16px;padding:12px clamp(16px,4vw,42px);background:rgba(14,36,54,.92);backdrop-filter:blur(10px);color:#fff}
+.lp-nav .brand-name{color:#fff;font-size:17px}
+.lp-nav .acoes{display:flex;gap:8px;align-items:center}
+.lp-in{max-width:1080px;margin:0 auto;padding:0 clamp(16px,4vw,32px)}
+.lp-hero{min-height:100svh;display:flex;align-items:center;background:var(--tinta);color:#fff;position:relative;
+  padding:90px 0 60px;background-image:radial-gradient(ellipse 60% 80% at 80% 0%,rgba(255,90,54,.28),transparent 60%)}
+.lp-hero h1{font-size:clamp(30px,5.4vw,64px);text-transform:uppercase;color:#fff;line-height:1.06;max-width:16ch}
+.lp-hero h1 em{font-style:normal;color:var(--coral)}
+.lp-hero .sub{color:rgba(255,255,255,.72);font-size:clamp(14px,1.7vw,18px);max-width:52ch;margin-top:20px;line-height:1.55}
+.lp-eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--coral);font-weight:700;margin-bottom:16px}
+.lp-nums{display:flex;gap:clamp(18px,3vw,40px);flex-wrap:wrap;margin-top:34px;padding-top:22px;border-top:1px solid rgba(255,255,255,.14)}
+.lp-nums span{display:block;font-family:var(--mono);font-size:clamp(20px,2.4vw,28px);color:var(--dourado)}
+.lp-nums small{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.lp-rola{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.45);
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;text-align:center}
+.lp-rola i{display:block;font-style:normal;font-size:18px;animation:pula 1.8s infinite}
+@keyframes pula{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(6px);opacity:1}}
+.lp-sec{padding:clamp(64px,10vh,120px) 0}
+.lp-sec.escura{background:var(--tinta);color:#fff}
+.lp-sec.escura h2{color:#fff}
+.lp-sec h2{font-size:clamp(26px,3.6vw,46px);text-transform:uppercase;max-width:18ch;line-height:1.1}
+.lp-sec .desc{color:var(--txt-2);max-width:54ch;margin-top:16px;font-size:15px;line-height:1.6}
+.lp-sec.escura .desc{color:rgba(255,255,255,.7)}
+.lp-2col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,64px);align-items:center}
+@media(max-width:860px){.lp-2col{grid-template-columns:1fr}}
+.lp-lista{display:grid;gap:14px;margin-top:26px}
+.lp-lista div{display:flex;gap:12px;font-size:14.5px;line-height:1.45}
+.lp-lista i{width:8px;height:8px;border-radius:50%;background:var(--coral);margin-top:7px;flex:none}
+.lp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:38px}
+@media(max-width:860px){.lp-grid{grid-template-columns:1fr}}
+.lp-card{background:var(--papel);border:1px solid var(--linha);border-radius:16px;padding:20px;box-shadow:var(--sh)}
+.lp-card .ic{font-size:22px}
+.lp-card h3{font-size:18px;text-transform:uppercase;margin:10px 0 6px}
+.lp-card p{color:var(--txt-2);font-size:13.5px;line-height:1.5;margin:0}
+.lp-sec.escura .lp-card{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.lp-sec.escura .lp-card p{color:rgba(255,255,255,.7)}
+.lp-fone{background:var(--tinta);border:8px solid #0A1A29;border-radius:30px;padding:14px;max-width:290px;margin:0 auto;
+  box-shadow:0 30px 60px -30px rgba(14,36,54,.7)}
+.lp-fone .topo{height:5px;width:60px;background:rgba(255,255,255,.2);border-radius:99px;margin:0 auto 12px}
+.lp-placar{background:#08192A;border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden;margin-bottom:9px}
+.lp-placar .h{display:flex;justify-content:space-between;padding:7px 11px;background:rgba(255,255,255,.06);
+  font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:700}
+.lp-placar .l{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;gap:10px}
+.lp-placar .l+.l{border-top:1px dashed rgba(255,255,255,.12)}
+.lp-placar .nm{font-family:var(--disp);font-size:15px;text-transform:uppercase;color:#fff;line-height:1}
+.lp-placar .pt{font-family:var(--mono);font-size:22px;color:var(--dourado);line-height:1}
+.lp-placar .l.lead .pt{color:#6BF2B0}
+.lp-podio{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;align-items:end;max-width:420px;margin-top:30px}
+.lp-podio .p{text-align:center}
+.lp-podio .topo{background:var(--papel);border:1px solid var(--linha);border-bottom:none;border-radius:12px 12px 0 0;padding:12px 8px}
+.lp-podio .tro{font-size:24px}
+.lp-podio .nm{font-size:12px;font-weight:700;margin-top:4px}
+.lp-podio .deg{border-radius:0 0 4px 4px;display:grid;place-items:center;font-family:var(--disp);font-size:26px;color:#fff;
+  transform-origin:bottom;transition:none}
+.lp-podio .p1 .deg{background:linear-gradient(180deg,#F3C24B,#D08E00)}
+.lp-podio .p2 .deg{background:linear-gradient(180deg,#CBD5DB,#94A5AF)}
+.lp-podio .p3 .deg{background:linear-gradient(180deg,#E0A171,#B4714A)}
+.lp-cta{background:var(--tinta);color:#fff;text-align:center;padding:clamp(60px,10vh,110px) 0;
+  background-image:radial-gradient(ellipse 60% 100% at 50% 0%,rgba(255,90,54,.3),transparent 62%)}
+.lp-cta h2{color:#fff;margin:0 auto;max-width:20ch}
+.lp-cta .desc{color:rgba(255,255,255,.7);margin:16px auto 28px}
+.lp-foot{background:var(--tinta);color:rgba(255,255,255,.4);font-size:12px;text-align:center;
+  padding:22px 0 30px;border-top:1px solid rgba(255,255,255,.1)}
+.lp-quadra{display:flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(255,255,255,.55);font-weight:700;margin-bottom:10px}
+.lp-quadra b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;font-family:var(--disp);font-size:12px}
+.lp-painel{background:var(--papel);border:1px solid var(--linha);border-radius:18px;padding:20px;box-shadow:var(--sh-l)}
+.lp-sec.escura .lp-painel{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}
+.lp-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.lp-kpi{background:var(--areia);border-radius:12px;padding:12px 14px}
+.lp-sec.escura .lp-kpi{background:rgba(255,255,255,.06)}
+.lp-kpi small{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--txt-3);font-weight:700}
+.lp-sec.escura .lp-kpi small{color:rgba(255,255,255,.5)}
+.lp-kpi b{font-family:var(--disp);font-size:26px;line-height:1.1;display:block;margin-top:3px}
+.lp-sec.escura .lp-kpi b{color:#fff}
+.lp-kpi i{font-style:normal;font-size:11px;color:var(--verde);font-weight:700}
+.lp-linha{display:grid;grid-template-columns:88px 1fr 34px;gap:10px;align-items:center;margin-bottom:9px;font-size:12px}
+.lp-sec.escura .lp-linha{color:rgba(255,255,255,.8)}
+.lp-trilho{height:9px;border-radius:99px;background:var(--areia-2);overflow:hidden}
+.lp-sec.escura .lp-trilho{background:rgba(255,255,255,.1)}
+.lp-trilho span{display:block;height:100%;border-radius:99px;background:var(--coral);width:0}
+.lp-linha em{font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--txt-2);text-align:right}
+.lp-sec.escura .lp-linha em{color:rgba(255,255,255,.65)}
+[data-anim]{will-change:transform,opacity}
+@media (prefers-reduced-motion:reduce){[data-anim]{opacity:1!important;transform:none!important}}
 
 /* ============ SHELL ============ */
 .shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
@@ -493,13 +582,13 @@ function slugUnico(base, usados) {
 }
 const initials = s => String(s || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 const today = () => new Date().toISOString().slice(0, 10);
-const fmtDate = d => { if (!d) return '—'; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; };
+const fmtDate = d => { if (!d) return '-'; const p = String(d).slice(0, 10).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d; };
 const fmtDT = ts => { const d = new Date(ts); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); };
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 const pl = (n, sing, plur) => num(n) + ' ' + (Number(n) === 1 ? sing : (plur || sing + 's'));
 /* placar com o vencedor em verde e o perdedor em vermelho */
 function placarCor(m, tam) {
-  if (m.scoreA == null || m.scoreB == null) return '<span class="mut">—</span>';
+  if (m.scoreA == null || m.scoreB == null) return '<span class="mut">-</span>';
   const venceuA = m.winnerId ? m.winnerId === m.teamAId : m.scoreA > m.scoreB;
   const st = tam ? `font-size:${tam};` : '';
   return `<b style="${st}color:${venceuA ? 'var(--verde)' : 'var(--vermelho)'}">${m.scoreA}</b>` +
@@ -620,14 +709,14 @@ const Sess = {
       Nuvem.sair(); Nuvem.pronto = false; DB = emptyDB();
       this.user = null; this.orgId = null; this.impersonating = false;
       localStorage.removeItem(SESS_KEY);
-      location.hash = '#/login';
+      location.hash = '#/';
       Nuvem.carregar().catch(() => { }).then(() => render());
       return;
     }
     log('logout', 'Saiu da plataforma'); saveDB();
     this.user = null; this.orgId = null; this.impersonating = false;
     localStorage.removeItem(SESS_KEY);
-    location.hash = '#/login';
+    location.hash = '#/';
   },
   enterOrg(orgId) {
     if (!this.user || this.user.role !== 'master') return;
@@ -684,7 +773,7 @@ const Q = {
     if (r.organizationId && r.organizationId !== Sess.orgId) return null;
     return r;
   },
-  arenaName(id) { const a = DB.arenas.find(x => x.id === id); return a ? a.name : '—'; },
+  arenaName(id) { const a = DB.arenas.find(x => x.id === id); return a ? a.name : '-'; },
   courtName(id) { const c = DB.courts.find(x => x.id === id); return c ? c.name : ''; },
   athlete(id) { return DB.athletes.find(x => x.id === id) || null; },
   team(id) { return DB.teams.find(x => x.id === id) || null; },
@@ -699,9 +788,9 @@ const Q = {
     const a = Q.athlete(t.athlete1Id), b = Q.athlete(t.athlete2Id);
     return [short(a && a.name), short(b && b.name)].join(' / ');
   },
-  orgName(id) { const o = DB.organizations.find(x => x.id === id); return o ? o.name : '—'; },
+  orgName(id) { const o = DB.organizations.find(x => x.id === id); return o ? o.name : '-'; },
   event(id) { return DB.events.find(x => x.id === id) || null; },
-  eventName(id) { const e = Q.event(id); return e ? e.name : '—'; },
+  eventName(id) { const e = Q.event(id); return e ? e.name : '-'; },
   categorias(eventId) { return Q.tournaments().filter(t => t.eventId === eventId).sort((a, b) => (a.ordem || 0) - (b.ordem || 0) || String(a.name).localeCompare(String(b.name))); }
 };
 
@@ -1060,7 +1149,7 @@ function generateBracket(t, opts) {
   }
   const gf = mk('F', 1, 0, 'Grande Final');
   gf.isGrandFinal = true;
-  const gf2 = mk('F', 2, 0, 'Final — desempate');
+  const gf2 = mk('F', 2, 0, 'Final de desempate');
   gf2.isReset = true; gf2.finalId = gf.id;
 
   // vagas da primeira rodada
@@ -1170,7 +1259,7 @@ function setResult(matchId, sa, sb) {
   rebuild(m.tournamentId);
   if (t && t.status === 'aberto') t.status = 'andamento';
   checkFinish(m.tournamentId);
-  log('resultado', `${Q.teamName(m.teamAId)} ${sa} x ${sb} ${Q.teamName(m.teamBId)} — ${t ? t.name : ''}`);
+  log('resultado', `${Q.teamName(m.teamAId)} ${sa} x ${sb} ${Q.teamName(m.teamBId)} em ${t ? t.name : ''}`);
   saveDB();
   return true;
 }
@@ -1610,7 +1699,7 @@ function statusBadge(s) {
     andamento: ['live', '● Ao vivo'], finalizado: ['gold', 'Finalizado'], cancelado: ['off', 'Cancelado'],
     aguardando: ['wait', 'Aguardando'], pendente: ['', 'A definir']
   };
-  const m = map[s] || ['', s || '—'];
+  const m = map[s] || ['', s || '-'];
   return `<span class="badge ${m[0]}">${m[1]}</span>`;
 }
 
@@ -1620,7 +1709,7 @@ function statusBadge(s) {
 const Rotas = {};
 function go(hash) { location.hash = hash; }
 function rotaAtual() {
-  const h = (location.hash || '').replace(/^#/, '') || '/login';
+  const h = (location.hash || '').replace(/^#/, '');
   return h.split('/').filter(Boolean);
 }
 function render() {
@@ -1636,7 +1725,7 @@ function render() {
   if (p[0] === 'atleta') return pubAtleta(app, p[1]);
   if (p[0] === 'tv') return pubTelao(app, p[1]);
 
-  if (!Sess.user) return viewLogin(app);
+  if (!Sess.user) return (p[0] === 'login' ? viewLogin(app) : viewLanding(app));
   if (Sess.isArbitro()) return viewArbitro(app, p);
   if (p[0] === 'login') { go(Sess.isMaster() && !Sess.impersonating ? '#/master/dashboard' : '#/org/dashboard'); return; }
   if (p[0] === 'master') {
@@ -1651,6 +1740,269 @@ function render() {
   go(Sess.isMaster() ? '#/master/dashboard' : '#/org/dashboard');
 }
 window.addEventListener('hashchange', render);
+
+/* ---------------------------------------------------------------
+   7.b PÁGINA DE APRESENTAÇÃO (vitrine para organizadores)
+   As animações são "amarradas" à rolagem: a pessoa rola, a cena anda.
+--------------------------------------------------------------- */
+const WHATSAPP_GBR = '';   // coloque aqui o número (ex.: '5547999999999') para exibir o botão de contato
+let scrubAtivo = false;
+
+function viewLanding(app) {
+  const st = platformStats();
+  const bracketSVG = `
+    <svg viewBox="0 0 420 300" width="100%" style="max-width:460px">
+      <g fill="none" stroke="rgba(255,255,255,.28)" stroke-width="2" stroke-linecap="round"
+         id="lp-linhas" stroke-dasharray="1000" stroke-dashoffset="1000">
+        <path d="M120 40 H160 V85 H200"/><path d="M120 130 H160 V85"/>
+        <path d="M120 190 H160 V235 H200"/><path d="M120 280 H160 V235"/>
+        <path d="M280 85 H310 V160 H345"/><path d="M280 235 H310 V160"/>
+      </g>
+      ${[[10, 22], [10, 112], [10, 172], [10, 262], [200, 67], [200, 217], [345, 142]].map((c, i) =>
+    `<g data-anim="caixa" data-ordem="${i}" opacity="0">
+          <rect x="${c[0]}" y="${c[1]}" width="110" height="36" rx="8" fill="rgba(255,255,255,.09)" stroke="rgba(255,255,255,.18)"/>
+          <circle cx="${c[0] + 18}" cy="${c[1] + 18}" r="9" fill="var(--coral)" opacity=".9"/>
+          <rect x="${c[0] + 33}" y="${c[1] + 12}" width="${i === 6 ? 52 : 46}" height="6" rx="3" fill="rgba(255,255,255,.5)"/>
+          <rect x="${c[0] + 33}" y="${c[1] + 22}" width="34" height="5" rx="2.5" fill="rgba(255,255,255,.25)"/>
+        </g>`).join('')}
+      <text x="345" y="132" fill="var(--dourado)" font-size="11" font-family="Inter,sans-serif"
+        font-weight="700" letter-spacing="2" data-anim="fade" opacity="0">CAMPEÃ</text>
+    </svg>`;
+
+  const quadra = (n, a, b, pa, pb) => `
+    <div data-anim="sobe" data-atraso="${n * 0.12}">
+      <div class="lp-quadra"><b>${n}</b> Quadra ${n}</div>
+      <div class="lp-placar">
+        <div class="h"><span>ao vivo</span><span>rodada ${n}</span></div>
+        <div class="l ${pa > pb ? 'lead' : ''}"><div class="nm">${a}</div>
+          <div class="pt" data-anim="contar" data-para="${pa}">0</div></div>
+        <div class="l ${pb > pa ? 'lead' : ''}"><div class="nm">${b}</div>
+          <div class="pt" data-anim="contar" data-para="${pb}">0</div></div>
+      </div></div>`;
+
+  app.innerHTML = `<div class="lp">
+    <nav class="lp-nav">
+      <div class="brand"><div class="brand-mark"><img src="${LOGO_GBR}" alt="GBR Connect"></div>
+        <div class="brand-name">GBR Connect</div></div>
+      <div class="acoes">
+        ${WHATSAPP_GBR ? `<a class="btn btn-s" href="https://wa.me/${WHATSAPP_GBR}" target="_blank"
+          style="background:transparent;color:#fff;border-color:rgba(255,255,255,.25)">Falar com a GBR</a>` : ''}
+        <a class="btn btn-s btn-p" href="#/login">Entrar</a></div>
+    </nav>
+
+    <header class="lp-hero"><div class="lp-in">
+      <div class="lp-eyebrow" data-anim="sobe">Gestão inteligente de torneios</div>
+      <h1 data-anim="sobe" data-atraso="0.05">Todos os torneios, todos os dados, tudo conectado em <em>uma única gestão</em>.</h1>
+      <p class="sub" data-anim="sobe" data-atraso="0.12">Plataforma completa para organizadores gerenciarem seus torneios o ano inteiro.
+        Atletas, duplas, arenas, árbitros, rankings e histórico centralizados em um só lugar, com placares atualizados em tempo real, em todas as quadras.</p>
+      <div class="lp-nums" data-anim="sobe" data-atraso="0.2">
+        <div><span>${num(st.orgsTotal)}</span><small>Organizadores</small></div>
+        <div><span>${num(st.arenas)}</span><small>Arenas</small></div>
+        <div><span>${num(st.tournaments)}</span><small>Torneios</small></div>
+        <div><span>${num(st.athletes)}</span><small>Atletas</small></div>
+        <div><span>${num(st.matches)}</span><small>Jogos</small></div>
+      </div></div>
+      <div class="lp-rola"><i>↓</i>role para ver</div>
+    </header>
+
+    <section class="lp-sec"><div class="lp-in">
+      <div class="lp-2col">
+        <div>
+          <h2 data-anim="esq">O domingo do organizador não deveria ser assim.</h2>
+          <p class="desc" data-anim="esq" data-atraso="0.08">Prancheta na mão, chave apagada e reescrita a cada resultado,
+            dez pessoas perguntando quando jogam, e no fim do dia ninguém sabe quem ficou em terceiro.</p>
+          <div class="lp-lista">
+            <div data-anim="esq" data-atraso="0.12"><i></i><span>Cadastro refeito do zero a cada etapa.</span></div>
+            <div data-anim="esq" data-atraso="0.16"><i></i><span>Resultado só no papel, e o papel molha.</span></div>
+            <div data-anim="esq" data-atraso="0.2"><i></i><span>Sem ranking, o atleta não tem motivo para voltar.</span></div>
+          </div>
+        </div>
+        <div data-anim="dir" data-atraso="0.1">
+          <div class="lp-grid" style="grid-template-columns:1fr;margin-top:0">
+            <div class="lp-card"><div class="ic">📋</div><h3>Cadastre uma vez</h3>
+              <p>Atletas, duplas, arenas e quadras ficam salvos. Na próxima etapa você só escolhe quem entra.</p></div>
+            <div class="lp-card"><div class="ic">⚡</div><h3>A chave anda sozinha</h3>
+              <p>Cada resultado avança o vencedor, manda o perdedor para a repescagem e libera o próximo jogo.</p></div>
+          </div>
+        </div>
+      </div></div></section>
+
+    <section class="lp-sec escura"><div class="lp-in">
+      <div class="lp-2col">
+        <div>
+          <h2 data-anim="esq">A chave anda sozinha a cada resultado.</h2>
+          <p class="desc" data-anim="esq" data-atraso="0.08">Eliminatória dupla completa, com chave dos vencedores,
+            repescagem e final de desempate. Ninguém sai com uma derrota só, e você não move nada à mão.</p>
+        </div>
+        <div style="text-align:center">${bracketSVG}</div>
+      </div></div></section>
+
+    <section class="lp-sec"><div class="lp-in">
+      <h2 data-anim="sobe">Três quadras, três árbitros, um placar só.</h2>
+      <p class="desc" data-anim="sobe" data-atraso="0.06">Cada árbitro entra com o acesso dele e enxerga apenas os jogos da própria quadra.
+        O que ele marca aparece na hora no seu painel, na tela dos atletas e no telão da arena.</p>
+      <div class="lp-grid">
+        ${quadra(1, 'Gabriel / Miguel', 'João / Paulo', 18, 15)}
+        ${quadra(2, 'Nathan / Dudu', 'Cadu / Matheus', 12, 18)}
+        ${quadra(3, 'Vilmar / Felipe', 'Baumann / Hugo', 18, 9)}
+      </div></div></section>
+
+    <section class="lp-sec escura"><div class="lp-in">
+      <div class="lp-2col">
+        <div>
+          <h2 data-anim="esq">O atleta acompanha pelo celular. Sem app, sem login.</h2>
+          <p class="desc" data-anim="esq" data-atraso="0.08">Um QR Code na entrada e um link no grupo do WhatsApp.
+            Quem abrir vê as duplas inscritas por categoria, os jogos ao vivo, a chave e a classificação.</p>
+          <div class="lp-lista">
+            <div data-anim="esq" data-atraso="0.12"><i></i><span>Um link para o dia inteiro, com todas as categorias.</span></div>
+            <div data-anim="esq" data-atraso="0.16"><i></i><span>Telão que roda sozinho na TV da arena.</span></div>
+            <div data-anim="esq" data-atraso="0.2"><i></i><span>Sua marca na página, não a de um site estrangeiro.</span></div>
+          </div>
+        </div>
+        <div data-anim="zoom" data-atraso="0.1">
+          <div class="lp-fone"><div class="topo"></div>
+            <div class="lp-quadra" style="margin-bottom:8px"><b>1</b> ao vivo</div>
+            <div class="lp-placar">
+              <div class="h"><span>quadra 1</span><span>semifinal</span></div>
+              <div class="l lead"><div class="nm">Gabriel / Miguel</div><div class="pt" data-anim="contar" data-para="18">0</div></div>
+              <div class="l"><div class="nm">João / Paulo</div><div class="pt" data-anim="contar" data-para="15">0</div></div>
+            </div>
+            <div class="lp-placar">
+              <div class="h"><span>quadra 2</span><span>repescagem</span></div>
+              <div class="l"><div class="nm">Nathan / Dudu</div><div class="pt" data-anim="contar" data-para="12">0</div></div>
+              <div class="l lead"><div class="nm">Cadu / Matheus</div><div class="pt" data-anim="contar" data-para="18">0</div></div>
+            </div>
+          </div>
+        </div>
+      </div></div></section>
+
+    <section class="lp-sec"><div class="lp-in">
+      <div class="lp-2col">
+        <div>
+          <h2 data-anim="esq">Ranking anual: o motivo do atleta voltar.</h2>
+          <p class="desc" data-anim="esq" data-atraso="0.08">Cada etapa soma pontos automaticamente no ranking do seu circuito.
+            O atleta tem perfil com títulos, aproveitamento e histórico por arena, e volta para subir de posição.</p>
+        </div>
+        <div class="lp-podio">
+          <div class="p p2"><div class="topo"><div class="tro">🥈</div><div class="nm">Miguel</div></div>
+            <div class="deg" data-anim="degrau" data-altura="62">2º</div></div>
+          <div class="p p1"><div class="topo"><div class="tro">🏆</div><div class="nm">Gabriel</div></div>
+            <div class="deg" data-anim="degrau" data-altura="92">1º</div></div>
+          <div class="p p3"><div class="topo"><div class="tro">🥉</div><div class="nm">Nathan</div></div>
+            <div class="deg" data-anim="degrau" data-altura="46">3º</div></div>
+        </div>
+      </div></div></section>
+
+    <section class="lp-sec escura"><div class="lp-in">
+      <div class="lp-2col">
+        <div>
+          <div class="lp-eyebrow" data-anim="esq">O diferencial</div>
+          <h2 data-anim="esq" data-atraso="0.04">O evento acaba. Os dados ficam com você.</h2>
+          <p class="desc" data-anim="esq" data-atraso="0.08">Chaveamento qualquer site faz. Gestão é outra coisa:
+            é você abrir a plataforma na segunda-feira e saber exatamente o que aconteceu no domingo,
+            e o que fazer na próxima etapa.</p>
+          <div class="lp-lista">
+            <div data-anim="esq" data-atraso="0.12"><i></i><span>Qual categoria está enchendo e qual está esvaziando, etapa a etapa.</span></div>
+            <div data-anim="esq" data-atraso="0.16"><i></i><span>Quantos atletas da última etapa voltaram, e quantos são novos.</span></div>
+            <div data-anim="esq" data-atraso="0.2"><i></i><span>Qual arena rende mais torneios, mais duplas e mais jogos.</span></div>
+            <div data-anim="esq" data-atraso="0.24"><i></i><span>Quem lidera o ranking e pode virar o chamariz da próxima divulgação.</span></div>
+          </div>
+          <p class="desc" data-anim="esq" data-atraso="0.28" style="font-weight:600;color:#fff">
+            Decidir preço, categoria e data com número na mão, não com achismo.</p>
+        </div>
+        <div data-anim="dir" data-atraso="0.1">
+          <div class="lp-painel">
+            <div class="lp-kpis">
+              <div class="lp-kpi"><small>Duplas na etapa</small><b data-anim="contar" data-para="41">0</b><i>+18% vs. etapa anterior</i></div>
+              <div class="lp-kpi"><small>Atletas que voltaram</small><b data-anim="contar" data-para="63">0</b><i>de 82 do circuito</i></div>
+              <div class="lp-kpi"><small>Jogos no ano</small><b data-anim="contar" data-para="486">0</b><i>em 3 arenas</i></div>
+              <div class="lp-kpi"><small>Categorias</small><b data-anim="contar" data-para="8">0</b><i>no mesmo dia</i></div>
+            </div>
+            <div style="font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;
+              color:var(--txt-3);margin-bottom:10px">Duplas por categoria</div>
+            ${[['Iniciante', 92, 12], ['Estreante', 74, 10], ['Misto', 56, 7], ['Feminino', 38, 5], ['Kids', 24, 3], ['Master', 18, 2]]
+      .map((c, i) => `<div class="lp-linha"><span>${c[0]}</span>
+                <div class="lp-trilho"><span data-anim="barra" data-para="${c[1]}" data-atraso="${i * 0.05}"></span></div>
+                <em data-anim="contar" data-para="${c[2]}" data-atraso="${i * 0.05}">0</em></div>`).join('')}
+          </div>
+        </div>
+      </div></div></section>
+
+    <section class="lp-sec"><div class="lp-in">
+      <h2 data-anim="sobe">Tudo o que você precisa no dia do evento.</h2>
+      <div class="lp-grid">
+        ${[['🗂️', 'Eventos e categorias', 'Um evento por dia, com iniciante, misto, feminino e kids dentro, cada um com sua chave.'],
+      ['🏟️', 'Arenas e quadras', 'Várias arenas por organizador, com agenda por quadra e estatísticas separadas.'],
+      ['🧑‍⚖️', 'Acesso por árbitro', 'Login por quadra, com botão grande de mais e menos. Ele não mexe em mais nada.'],
+      ['📺', 'Telão da arena', 'Placar ao vivo, chaveamento e classificação alternando sozinhos na TV.'],
+      ['📱', 'Página pública', 'Sem login e sem app, com QR Code para imprimir e colar na entrada.'],
+      ['📊', 'Ranking e histórico', 'Pontuação configurável, pódio, perfil do atleta e consolidado por arena.']]
+      .map((c, i) => `<div class="lp-card" data-anim="sobe" data-atraso="${(i % 3) * 0.08}">
+          <div class="ic">${c[0]}</div><h3>${c[1]}</h3><p>${c[2]}</p></div>`).join('')}
+      </div></div></section>
+
+    <section class="lp-cta"><div class="lp-in">
+      <h2 data-anim="sobe">Comece pelo seu próximo torneio.</h2>
+      <p class="desc" data-anim="sobe" data-atraso="0.06">Monte o evento, gere as chaves e mande o link para os atletas.
+        O resto do domingo é seu.</p>
+      <div class="btn-row" style="justify-content:center" data-anim="sobe" data-atraso="0.12">
+        <a class="btn btn-p" href="#/login" style="padding:13px 26px;font-size:15px">Entrar na plataforma</a>
+        ${WHATSAPP_GBR ? `<a class="btn" href="https://wa.me/${WHATSAPP_GBR}" target="_blank"
+          style="background:transparent;color:#fff;border-color:rgba(255,255,255,.3);padding:13px 26px;font-size:15px">Falar com a GBR</a>` : ''}
+      </div></div></section>
+
+    <div class="lp-foot" style="background:var(--tinta);color:rgba(255,255,255,.4);font-size:12px;text-align:center;padding:22px 0 30px">GBR Connect · Plataforma de torneios</div>
+  </div>`;
+  iniciarScrub();
+}
+
+/* motor de animação por rolagem: transform e opacidade, nada pesado */
+function iniciarScrub() {
+  if (scrubAtivo) return;
+  scrubAtivo = true;
+  const reduzido = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const passo = () => {
+    const alvos = $$('[data-anim]');
+    if (!alvos.length || !$('.lp')) { scrubAtivo = false; return; }
+    const h = window.innerHeight || 800;
+    alvos.forEach(el => {
+      const r = el.getBoundingClientRect();
+      const atraso = parseFloat(el.dataset.atraso || 0);
+      let p = reduzido ? 1 : (h - r.top - h * 0.08) / (h * 0.5) - atraso;
+      p = Math.max(0, Math.min(1, p));
+      const s = p * p * (3 - 2 * p);   // suaviza início e fim
+      const tipo = el.dataset.anim;
+      if (tipo === 'sobe') { el.style.opacity = s; el.style.transform = `translateY(${(1 - s) * 34}px)`; }
+      else if (tipo === 'esq') { el.style.opacity = s; el.style.transform = `translateX(${(1 - s) * -38}px)`; }
+      else if (tipo === 'dir') { el.style.opacity = s; el.style.transform = `translateX(${(1 - s) * 38}px)`; }
+      else if (tipo === 'zoom') { el.style.opacity = s; el.style.transform = `scale(${0.9 + s * 0.1})`; }
+      else if (tipo === 'fade') { el.setAttribute('opacity', s); }
+      else if (tipo === 'contar') {
+        const alvo = Number(el.dataset.para || 0);
+        el.textContent = Math.round(alvo * s);
+      } else if (tipo === 'barra') {
+        el.style.width = (Number(el.dataset.para || 0) * s) + '%';
+      } else if (tipo === 'degrau') {
+        const alt = Number(el.dataset.altura || 60);
+        el.style.height = Math.max(6, alt * s) + 'px';
+      } else if (tipo === 'caixa') {
+        const ordem = Number(el.dataset.ordem || 0);
+        const q = Math.max(0, Math.min(1, s * 7 - ordem * 0.8));
+        el.setAttribute('opacity', q);
+        el.setAttribute('transform', `translate(${(1 - q) * -14} 0)`);
+      }
+    });
+    const linhas = $('#lp-linhas');
+    if (linhas) {
+      const r = linhas.getBoundingClientRect();
+      let p = reduzido ? 1 : (h - r.top - h * 0.1) / (h * 0.55);
+      p = Math.max(0, Math.min(1, p));
+      linhas.setAttribute('stroke-dashoffset', String(1000 - 1000 * p));
+    }
+    requestAnimationFrame(passo);
+  };
+  requestAnimationFrame(passo);
+}
 
 /* ---------------------------------------------------------------
    8. LOGIN
@@ -1682,6 +2034,7 @@ function viewLogin(app) {
       </div>
     </div>
     <div class="login-form"><div class="login-card">
+      <a class="btn btn-s" href="#/" style="margin-bottom:18px">← Voltar</a>
       <h2>Entrar</h2>
       <p class="sub">Use o acesso enviado pela GBR Connect.</p>
       <div class="field"><label>Usuário</label><input class="inp" id="lg-user" autocomplete="username" placeholder="seu login"></div>
@@ -1927,7 +2280,7 @@ function formAcesso(org) {
     { k: 'password', label: naNuvem && u ? 'Nova senha (opcional)' : 'Senha temporária', req: !(naNuvem && u), val: u ? (naNuvem ? '' : u.password) : senha, half: true },
     { k: 'name', label: 'Nome do usuário', req: true, val: u ? u.name : (org.responsible || org.name) }
   ];
-  openModal(u ? 'Acesso de ' + org.name : 'Criar acesso — ' + org.name,
+  openModal(u ? 'Acesso de ' + org.name : 'Criar acesso de ' + org.name,
     `<div class="card card-p mb14" style="background:var(--areia);box-shadow:none">
       <div class="mut-s" style="letter-spacing:.14em;text-transform:uppercase;font-weight:700">Organizador</div>
       <div style="font-family:var(--disp);font-size:26px;text-transform:uppercase">${esc(org.name)}</div>
@@ -2031,7 +2384,7 @@ function mAtletas(app) {
     <tbody id="corpo">${DB.athletes.map(a => { const r = athleteRecord(a.id); return `<tr data-nome="${esc((a.name + ' ' + codigoAtleta(a)).toLowerCase())}">
       <td class="num">${codigoAtleta(a)}</td>
       <td><div class="person">${avatar(a.photo, a.name)}<div><b>${esc(a.name)}</b><span>${esc(a.instagram || '')}</span></div></div></td>
-      <td>${esc(Q.orgName(a.organizationId))}</td><td>${esc(a.category || '—')}</td>
+      <td>${esc(Q.orgName(a.organizationId))}</td><td>${esc(a.category || '-')}</td>
       <td class="num">${num(r.pontos)}</td><td class="num">${r.jogos}</td></tr>`; }).join('')}
     </tbody></table></div></div>` : vazio('✦', 'Nenhum atleta cadastrado', 'Cada organizador mantém a própria base de atletas.');
   shell(app, MENU_MASTER, 'atletas', 'Atletas', 'Base global (somente leitura)', '', html);
@@ -2064,7 +2417,7 @@ function mLogs(app) {
   const html = DB.logs.length ? `<div class="card"><div class="tbl-wrap"><table class="tbl">
     <thead><tr><th>Quando</th><th>Usuário</th><th>Perfil</th><th>Organizador</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody>
     ${DB.logs.slice(0, 300).map(l => `<tr><td class="num nowrap">${fmtDT(l.ts)}</td><td>${esc(l.userName)}</td>
-      <td><span class="badge">${esc(l.role)}</span></td><td>${esc(l.organizationId ? Q.orgName(l.organizationId) : '—')}</td>
+      <td><span class="badge">${esc(l.role)}</span></td><td>${esc(l.organizationId ? Q.orgName(l.organizationId) : '-')}</td>
       <td><b>${esc(l.action)}</b></td><td class="mut">${esc(l.detail)}</td></tr>`).join('')}
     </tbody></table></div></div>` : vazio('☰', 'Nenhum registro ainda', 'Toda ação relevante da plataforma fica registrada aqui.');
   shell(app, MENU_MASTER, 'logs', 'Logs de utilização', 'GBR Connect', '', html);
@@ -2077,7 +2430,7 @@ function mConfig(app) {
       <button class="btn btn-p" id="salvar-senha">Salvar alterações</button></div></div>
     <div class="card"><div class="card-h"><h3>Cópia de segurança</h3>${Nuvem.pronto ? '<span class="badge ok">● nuvem ligada</span>' : '<span class="badge">modo local</span>'}</div><div class="card-p">
       <p class="mut" style="margin-top:0">${Nuvem.pronto
-      ? 'Os dados estão no banco na nuvem e chegam a todos os aparelhos. Ainda assim vale guardar uma cópia de tempos em tempos — o plano gratuito do Supabase não faz backup automático.'
+      ? 'Os dados estão no banco na nuvem e chegam a todos os aparelhos. Ainda assim vale guardar uma cópia de tempos em tempos, porque o plano gratuito do Supabase não faz backup automático.'
       : 'Os dados ficam neste navegador. Exporte um arquivo JSON para guardar ou levar para outro computador.'}</p>
       <div class="btn-row"><button class="btn btn-d" id="exp">Exportar cópia</button>
         ${Nuvem.pronto ? '' : `<button class="btn" id="imp">Importar cópia</button>
@@ -2086,7 +2439,7 @@ function mConfig(app) {
       ${Nuvem.pronto ? '' : `<div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--linha-f)">
         <button class="btn btn-w" id="zerar">Apagar todos os dados</button></div>`}</div></div>
     <div class="card" style="grid-column:1/-1"><div class="card-h"><h3>Como a plataforma isola os dados</h3></div><div class="card-p">
-      <p class="mut" style="margin-top:0">Todo registro carrega o <b>organization_id</b> do organizador dono. As telas nunca leem a base direto: passam pela camada de consulta, que aplica o filtro do contexto autenticado — o mesmo papel do Row Level Security no Supabase. O master é o único perfil com visão global, e quando ele entra no ambiente de um cliente a sessão fica marcada como suporte.</p>
+      <p class="mut" style="margin-top:0">Todo registro carrega o <b>organization_id</b> do organizador dono. As telas nunca leem a base direto: passam pela camada de consulta, que aplica o filtro do contexto autenticado, o mesmo papel do Row Level Security no Supabase. O master é o único perfil com visão global, e quando ele entra no ambiente de um cliente a sessão fica marcada como suporte.</p>
       <div class="pill-list" style="gap:8px">${['users', 'organizations', 'arenas', 'courts', 'athletes', 'teams', 'tournaments', 'registrations', 'matches', 'ranking_points', 'logs']
       .map(t => `<span class="badge">${t}</span>`).join('')}</div></div></div>
   </div>`;
@@ -2184,7 +2537,7 @@ function primeiroAcesso(app) {
   shell(app, MENU_ORG, 'dashboard', 'Bem-vindo ao GBR Connect', esc(Sess.org().name), '',
     `<div class="card"><div class="empty">
       <div class="ico">🏐</div><h3>Seu ambiente está pronto e vazio</h3>
-      <p>Tudo aqui é só seu. Comece cadastrando a arena onde os torneios acontecem — depois vêm as quadras, os atletas e a primeira chave.</p>
+      <p>Tudo aqui é só seu. Comece cadastrando a arena onde os torneios acontecem. Depois vêm as quadras, os atletas e a primeira chave.</p>
       <button class="btn btn-p" id="p1">+ Cadastrar arena</button></div>
       <div class="card-p" style="border-top:1px solid var(--linha-f)">
         <div class="grid g3">
@@ -2252,9 +2605,9 @@ function cardPartida(m) {
     <div class="flexb mb14"><span class="mut-s">${esc(nomeTorneio(m.tournamentId))} · ${esc(m.label)}</span>
       ${live ? '<span class="badge live"><span class="dot"></span>Ao vivo</span>' : statusBadge(m.status)}</div>
     <div class="flexb" style="gap:8px"><b style="font-size:15px">${esc(Q.teamName(m.teamAId) || 'A definir')}</b>
-      <span class="num" style="font-size:20px">${m.scoreA == null ? '—' : m.scoreA}</span></div>
+      <span class="num" style="font-size:20px">${m.scoreA == null ? '-' : m.scoreA}</span></div>
     <div class="flexb" style="gap:8px;margin-top:6px"><b style="font-size:15px">${esc(Q.teamName(m.teamBId) || 'A definir')}</b>
-      <span class="num" style="font-size:20px">${m.scoreB == null ? '—' : m.scoreB}</span></div>
+      <span class="num" style="font-size:20px">${m.scoreB == null ? '-' : m.scoreB}</span></div>
     <div class="btn-row mt14"><button class="btn btn-s btn-p" data-res="${m.id}">Lançar resultado</button>
       ${m.courtId ? `<span class="badge">${esc(Q.courtName(m.courtId))}</span>` : ''}</div></div>`;
 }
@@ -2327,7 +2680,7 @@ function oQuadras(app) {
           <div class="flexb" style="align-items:center"><b>${esc(c.name)}</b>
             <button class="btn-x" data-delq="${c.id}" title="Excluir quadra">✕</button></div>
           <div class="mt14">${ag.length ? ag.map(m => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--linha-f)">
-            <b class="num">${esc(m.time || '--:--')}</b> ${esc(Q.teamShort(m.teamAId) || '—')} <span class="mut-s">x</span> ${esc(Q.teamShort(m.teamBId) || '—')}
+            <b class="num">${esc(m.time || '--:--')}</b> ${esc(Q.teamShort(m.teamAId) || '-')} <span class="mut-s">x</span> ${esc(Q.teamShort(m.teamBId) || '-')}
             <div class="mut-s">${esc(nomeTorneio(m.tournamentId))}</div></div>`).join('')
           : '<div class="mut-s">Sem jogos agendados.</div>'}</div></div>`;
     }).join('')}</div>` : '<div class="card-p mut">Nenhuma quadra nesta arena.</div>'}</div>`;
@@ -2373,7 +2726,7 @@ function oAtletas(app) {
     <tbody id="corpo">${as.map(a => { const r = athleteRecord(a.id); return `<tr data-nome="${esc((a.name + ' ' + codigoAtleta(a)).toLowerCase())}">
       <td class="num"><b>${codigoAtleta(a)}</b></td>
       <td><div class="person">${avatar(a.photo, a.name)}<div><b>${esc(a.name)}</b><span>${esc(a.instagram || a.phone || '')}</span></div></div></td>
-      <td>${esc(a.category || '—')}</td><td class="num">${num(r.pontos)}</td><td class="num">${r.torneios}</td>
+      <td>${esc(a.category || '-')}</td><td class="num">${num(r.pontos)}</td><td class="num">${r.torneios}</td>
       <td class="num">${r.jogos}</td><td class="num">${r.apr}%</td><td class="num">${r.titulos}</td>
       <td class="right nowrap"><a class="btn btn-s" href="#/atleta/${a.id}" target="_blank">Perfil</a>
         <button class="btn btn-s" data-ed="${a.id}">Editar</button>
@@ -2390,7 +2743,7 @@ function oAtletas(app) {
     $$('#corpo tr').forEach(tr => tr.style.display = tr.dataset.nome.includes(v) ? '' : 'none');
   };
   $('#import').onclick = () => formModal('Importar atletas', [
-    { k: 'lista', label: 'Um nome por linha', type: 'textarea', req: true, ph: 'Marçal\nMiguel\nJoão\nPaulo' },
+    { k: 'lista', label: 'Um nome por linha', type: 'textarea', req: true, ph: 'Gabriel\nMiguel\nJoão\nPaulo' },
     { k: 'category', label: 'Categoria (opcional)', half: true }
   ], d => {
     const nomes = d.lista.split('\n').map(s => s.trim()).filter(Boolean);
@@ -2598,7 +2951,7 @@ function oEvento(app, params) {
   if (aba === 'categorias') {
     corpo = `<div class="grid g4 tight mb22">
       ${statCard('Categorias', s.categorias)}${statCard('Inscrições', s.inscricoes, s.duplas + ' duplas diferentes', 'v2')}
-      ${statCard('Jogos', s.jogos ? s.fim + '/' + s.jogos : '—', 'finalizados', 'v3')}${statCard('Ao vivo', s.live, '', 'v4')}</div>
+      ${statCard('Jogos', s.jogos ? s.fim + '/' + s.jogos : '-', 'finalizados', 'v3')}${statCard('Ao vivo', s.live, '', 'v4')}</div>
       ${s.cats.length ? `<div class="card"><div class="card-h"><h3>Categorias deste evento</h3>
         <button class="btn btn-s btn-p" id="add-cat">+ Adicionar categoria</button></div>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Categoria</th><th>Duplas</th><th>Jogos</th><th>Chave</th><th>Situação</th><th></th></tr></thead><tbody>
@@ -2607,7 +2960,7 @@ function oEvento(app, params) {
       const fim = ms.filter(m => m.status === 'finalizado').length;
       return `<tr><td><b>${esc(t.name)}</b><div class="mut-s">${esc(t.sport || '')}</div></td>
           <td class="num">${(t.teamIds || []).length}</td>
-          <td class="num">${ms.length ? fim + '/' + ms.length : '—'}</td>
+          <td class="num">${ms.length ? fim + '/' + ms.length : '-'}</td>
           <td>${t.bracketGenerated ? '<span class="badge ok">gerada</span>' : '<span class="badge">pendente</span>'}</td>
           <td>${statusBadge(t.status)}</td>
           <td class="right nowrap"><a class="btn btn-s btn-p" href="#/org/torneio/${t.id}">Gerenciar</a>
@@ -2694,10 +3047,10 @@ function formTorneio(t, evento) {
     { k: 'time', label: 'Horário', type: 'time', val: t ? t.time : (ev ? ev.time : '08:00'), half: true },
     { k: 'format', label: 'Formato', type: 'select', val: t ? t.format : 'double', half: true, opts: [
         { v: 'double', t: 'Eliminatória dupla (vencedores + repescagem)' },
-        { v: 'single', t: 'Eliminatória simples — em breve' },
-        { v: 'roundrobin', t: 'Todos contra todos — em breve' },
-        { v: 'grupos', t: 'Grupos + eliminatória — em breve' },
-        { v: 'suico', t: 'Sistema suíço — em breve' }] },
+        { v: 'single', t: 'Eliminatória simples (em breve)' },
+        { v: 'roundrobin', t: 'Todos contra todos (em breve)' },
+        { v: 'grupos', t: 'Grupos + eliminatória (em breve)' },
+        { v: 'suico', t: 'Sistema suíço (em breve)' }] },
     { k: 'maxTeams', label: 'Máximo de duplas', type: 'number', val: t ? t.maxTeams : 16, half: true },
     { k: 'fee', label: 'Valor da inscrição (R$)', type: 'number', val: t && t.fee, half: true },
     { k: 'status', label: 'Situação', type: 'select', val: t ? t.status : 'aberto', half: true, opts: [
@@ -2707,9 +3060,9 @@ function formTorneio(t, evento) {
     { k: 'description', label: 'Descrição', type: 'textarea', val: t && t.description },
     { k: 'rules', label: 'Regulamento', type: 'textarea', val: t && t.rules }
   ];
-  formModal(t ? (ev ? 'Editar categoria' : 'Editar torneio') : (ev ? 'Nova categoria — ' + ev.name : 'Criar torneio'), campos, d => {
+  formModal(t ? (ev ? 'Editar categoria' : 'Editar torneio') : (ev ? 'Nova categoria de ' + ev.name : 'Criar torneio'), campos, d => {
     if (ev) { d.arenaId = ev.arenaId; d.date = ev.date; }
-    if (d.format !== 'double') { toast('Nesta versão a chave automática é a eliminatória dupla — o torneio ficou nesse formato.', ''); d.format = 'double'; }
+    if (d.format !== 'double') { toast('Nesta versão a chave automática é a eliminatória dupla, então o torneio ficou nesse formato.', ''); d.format = 'double'; }
     if (t) { Object.assign(t, d, { banner: d.banner || t.banner }); log('torneio', 'Editou ' + t.name); saveDB(); render(); toast('Torneio salvo.', 'ok'); }
     else {
       const baseNome = ev ? (ev.name + ' ' + d.name) : d.name;
@@ -2819,8 +3172,8 @@ function tVisao(t, ms) {
   const ao = ms.filter(m => m.status === 'andamento');
   const prox = ms.filter(m => m.status === 'aguardando').slice(0, 6);
   return `<div class="grid g4 tight mb22">
-      ${statCard('Duplas inscritas', (t.teamIds || []).length, 'máximo ' + (t.maxTeams || '—'))}
-      ${statCard('Jogos', ms.length ? fim + '/' + ms.length : '—', 'finalizados', 'v2')}
+      ${statCard('Duplas inscritas', (t.teamIds || []).length, 'máximo ' + (t.maxTeams || '-'))}
+      ${statCard('Jogos', ms.length ? fim + '/' + ms.length : '-', 'finalizados', 'v2')}
       ${statCard('Ao vivo', ao.length, '', 'v3')}
       ${statCard('Situação', '', '', 'v4').replace('<div class="v"></div>', `<div style="margin-top:8px">${statusBadge(t.status)}</div>`)}
     </div>
@@ -2837,7 +3190,7 @@ function tVisao(t, ms) {
       <div class="card"><div class="card-h"><h3>Informações</h3></div>
         <div class="card-p">
           <div class="pill-list" style="gap:10px">
-            <span class="badge">${esc(t.sport || '—')}</span><span class="badge">${esc(t.category || 'sem categoria')}</span>
+            <span class="badge">${esc(t.sport || '-')}</span><span class="badge">${esc(t.category || 'sem categoria')}</span>
             <span class="badge">${esc(fmtDate(t.date))} ${esc(t.time || '')}</span>
             <span class="badge">${esc(Q.arenaName(t.arenaId))}</span>
             <span class="badge gold">eliminatória dupla</span>
@@ -2870,7 +3223,7 @@ function modalInscricao(t) {
   const lista = todas.map(tm => `<label style="display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid var(--linha);border-radius:10px;margin-bottom:7px;cursor:pointer">
       <input type="checkbox" value="${tm.id}" ${inscritas.has(tm.id) ? 'checked' : ''}>
       <span><b>${esc(tm.name || Q.teamName(tm.id))}</b>${tm.name ? `<div class="mut-s">${esc(Q.teamName(tm.id))}</div>` : ''}</span></label>`).join('');
-  openModal('Inscrever duplas — ' + t.name,
+  openModal('Inscrever duplas de ' + t.name,
     `${todas.length ? `<div class="flexb mb14"><span class="mut-s">Marque as duplas que vão disputar este torneio.</span>
         <button class="btn btn-s" id="nova-dupla">+ Nova dupla</button></div>
       <div style="max-height:46vh;overflow:auto">${lista}</div>`
@@ -2919,14 +3272,14 @@ function fotosDupla(id) {
 function matchBox(m, publico) {
   const cls = m.status === 'andamento' ? 'live' : (m.bracket === 'F' ? 'final' : '');
   const side = (id, sc, win) => {
-    const nome = id ? Q.teamShort(id) : '—';
+    const nome = id ? Q.teamShort(id) : '-';
     const c = m.winnerId ? (win ? 'win' : 'los') : '';
     const cor = m.winnerId && sc != null ? (win ? 'var(--verde)' : 'var(--vermelho)') : '';
     return `<div class="br-s ${c}">${fotosDupla(id)}<span class="nm">${esc(nome)}</span>
       <span class="sc" style="${cor ? 'color:' + cor + ';font-weight:800' : ''}">${sc == null ? '' : sc}</span></div>`;
   };
   return `<div class="br-m ${cls}" ${publico ? '' : `data-abrir-m="${m.id}"`} title="${esc(m.label)}">
-    ${m.bracket === 'F' ? `<span class="br-tag">${m.isReset ? 'Final — desempate' : 'Grande final'}</span>` : ''}
+    ${m.bracket === 'F' ? `<span class="br-tag">${m.isReset ? 'Final de desempate' : 'Grande final'}</span>` : ''}
     ${side(m.teamAId, m.scoreA, m.winnerId === m.teamAId)}
     ${side(m.teamBId, m.scoreB, m.winnerId === m.teamBId)}</div>`;
 }
@@ -2938,7 +3291,7 @@ function linhaPartida(m, comTorneio) {
     <td><b class="${m.winnerId === m.teamAId ? 'venceu' : ''}">${esc(Q.teamName(m.teamAId) || (m.bye ? 'sem adversário' : 'a definir'))}</b></td>
     <td class="num center nowrap" style="min-width:78px">${placarCor(m)}</td>
     <td><b class="${m.winnerId === m.teamBId ? 'venceu' : ''}">${esc(Q.teamName(m.teamBId) || (m.bye ? 'sem adversário' : 'a definir'))}</b></td>
-    <td>${esc(m.courtId ? Q.courtName(m.courtId) : '—')}</td><td class="num">${esc(m.time || '—')}</td><td>${st}</td>
+    <td>${esc(m.courtId ? Q.courtName(m.courtId) : '-')}</td><td class="num">${esc(m.time || '-')}</td><td>${st}</td>
     <td class="right"><button class="btn btn-s ${m.status === 'finalizado' ? '' : 'btn-p'}" data-abrir-m="${m.id}"
       ${(!m.teamAId || !m.teamBId) ? 'disabled' : ''}>${m.status === 'finalizado' ? 'Editar' : 'Lançar'}</button></td></tr>`;
 }
@@ -2973,7 +3326,7 @@ function tDivulgacao(t) {
   return `<div class="grid g2">
     <div class="card"><div class="card-h"><h3>QR Code do torneio</h3></div><div class="card-p center">
       <div class="qr-box" style="background:#fff;border:1px solid var(--linha)"><canvas id="qr-canvas"></canvas></div>
-      <p class="mut mt14" style="max-width:38ch;margin-left:auto;margin-right:auto">Imprima e cole na entrada, nas quadras e nas mesas. Quem apontar a câmera cai direto na tela AO VIVO — sem app, sem cadastro.</p>
+      <p class="mut mt14" style="max-width:38ch;margin-left:auto;margin-right:auto">Imprima e cole na entrada, nas quadras e nas mesas. Quem apontar a câmera cai direto na tela AO VIVO, sem app e sem cadastro.</p>
       <div class="btn-row" style="justify-content:center"><button class="btn btn-d" id="baixar-qr">Baixar PNG</button>
         <button class="btn" id="imprimir">Imprimir</button></div></div></div>
     <div class="card"><div class="card-h"><h3>Link público</h3></div><div class="card-p">
@@ -2986,11 +3339,11 @@ function tDivulgacao(t) {
 📍 ${esc(Q.arenaName(t.arenaId))} · ${esc(fmtDate(t.date))}
 Acompanhe os jogos ao vivo, sem login:
 ${esc(linkPublico(t))}</div></div>
-      <p class="hint mt14">Este arquivo funciona offline. Para o público acessar de outros celulares, publique o arquivo em um endereço na internet — o link e o QR Code passam a apontar para ele automaticamente.</p>
+      <p class="hint mt14">Este arquivo funciona offline. Para o público acessar de outros celulares, publique o arquivo em um endereço na internet. O link e o QR Code passam a apontar para ele automaticamente.</p>
     </div></div>
     <div class="card" style="grid-column:1/-1"><div class="card-h"><h3>Telão da arena</h3>
       <a class="btn btn-p btn-s" href="#/tv/${t.slug}" target="_blank">Abrir telão</a></div><div class="card-p">
-      <p class="mut" style="margin-top:0">Tela cheia para o televisor: ela sozinha alterna entre <b>placar ao vivo</b>, <b>chaveamento</b> e <b>classificação com os próximos jogos</b>, e traz um QR Code no canto para quem quiser acompanhar pelo celular. Abra no navegador da TV e aperte ⛶ para tela cheia — não precisa mexer mais.</p>
+      <p class="mut" style="margin-top:0">Tela cheia para o televisor: ela sozinha alterna entre <b>placar ao vivo</b>, <b>chaveamento</b> e <b>classificação com os próximos jogos</b>, e traz um QR Code no canto para quem quiser acompanhar pelo celular. Abra no navegador da TV e aperte ⛶ para tela cheia. Não precisa mexer mais.</p>
       <div class="field mt14"><label>Endereço do telão</label>
         <input class="inp" readonly value="${esc(location.href.split('#')[0] + '#/tv/' + t.slug)}" onclick="this.select()"></div>
     </div></div></div>`;
@@ -3012,7 +3365,7 @@ function modalResultado(matchId) {
          <input class="inp" id="sb" type="number" inputmode="numeric" value="${m.scoreB == null ? '' : m.scoreB}" style="width:88px;text-align:center;font-family:var(--mono);font-size:19px"></div>
      </div>
      <div class="grid" style="grid-template-columns:1fr 1fr;gap:0 14px">
-       <div class="field"><label>Quadra</label><select class="inp" id="qd"><option value="">—</option>
+       <div class="field"><label>Quadra</label><select class="inp" id="qd"><option value="">-</option>
          ${quadras.map(c => `<option value="${c.id}" ${m.courtId === c.id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select></div>
        <div class="field"><label>Horário</label><input class="inp" id="hr" type="time" value="${esc(m.time || '')}"></div>
      </div>
@@ -3399,7 +3752,7 @@ function viewArbitro(app) {
   $$('[data-dec]').forEach(b => b.onclick = () => ajusta(b.dataset.dec, -1));
   if ($('#ab-encerrar')) $('#ab-encerrar').onclick = () => {
     const a = emQuadra.scoreA || 0, b = emQuadra.scoreB || 0;
-    if (a === b) { toast('O placar está empatado — ajuste antes de encerrar.', 'err'); return; }
+    if (a === b) { toast('O placar está empatado. Ajuste antes de encerrar.', 'err'); return; }
     confirmar('Encerrar partida', `${esc(Q.teamShort(emQuadra.teamAId))} ${a} x ${b} ${esc(Q.teamShort(emQuadra.teamBId))}. Confirma o resultado?`,
       () => { if (setResult(emQuadra.id, a, b)) { render(); toast('Resultado enviado. Chave atualizada.', 'ok'); } }, 'Confirmar resultado');
   };
@@ -3499,7 +3852,7 @@ function telaoVivo(ms) {
   if (!ao.length) {
     return `<div class="tv-grid" style="grid-template-columns:1fr 1fr">
       <div><div class="tv-cap">Próximos jogos</div><div class="tv-list">${prox.length ? prox.map(m => `<div class="r">
-        <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.time || (m.courtId ? Q.courtName(m.courtId) : '—'))}</b></div>`).join('')
+        <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.time || (m.courtId ? Q.courtName(m.courtId) : '-'))}</b></div>`).join('')
       : '<div class="r"><span>Aguardando a próxima rodada.</span></div>'}</div></div>
       <div><div class="tv-cap">Últimos resultados</div><div class="tv-list">${ult.length ? ult.map(m => `<div class="r">
         <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${placarCor(m)}</b></div>`).join('')
@@ -3507,7 +3860,7 @@ function telaoVivo(ms) {
   }
   return `<div class="tv-grid" style="grid-template-columns:repeat(${ao.length > 1 ? 2 : 1},1fr)">${ao.slice(0, 4).map(pl).join('')}</div>
     ${prox.length ? `<div class="tv-cap" style="margin-top:14px">A seguir</div><div class="tv-list">${prox.slice(0, 3).map(m => `<div class="r">
-      <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.time || (m.courtId ? Q.courtName(m.courtId) : '—'))}</b></div>`).join('')}</div>` : ''}`;
+      <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.time || (m.courtId ? Q.courtName(m.courtId) : '-'))}</b></div>`).join('')}</div>` : ''}`;
 }
 function telaoCategorias(ev, ms) {
   const cats = DB.tournaments.filter(x => x.eventId === ev.id).sort((a, b) => String(a.name).localeCompare(String(b.name)));
@@ -3533,7 +3886,7 @@ function telaoTabela(t, ms) {
     <div><div class="tv-cap">Situação das duplas</div><div class="tv-list">${vivos.map(x => `<div class="r">
       <span>${esc(Q.teamName(x.id))}</span><b style="color:${x.der >= 2 ? 'var(--vermelho)' : x.der === 1 ? 'var(--dourado)' : 'var(--verde)'}">${x.v}V · ${x.der}D</b></div>`).join('')}</div></div>
     <div><div class="tv-cap">Próximos jogos</div><div class="tv-list">${prox.length ? prox.map(m => `<div class="r">
-      <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.courtId ? Q.courtName(m.courtId) : (m.time || '—'))}</b></div>`).join('')
+      <span>${esc(Q.teamShort(m.teamAId))} x ${esc(Q.teamShort(m.teamBId))}</span><b>${esc(m.courtId ? Q.courtName(m.courtId) : (m.time || '-'))}</b></div>`).join('')
       : '<div class="r"><span>Aguardando a próxima rodada.</span></div>'}</div></div></div>`;
 }
 
@@ -3608,11 +3961,11 @@ function pubEvento(app, slug, aba) {
     };
     corpo = `${live.length ? `<div class="sec-cap">Acontecendo agora</div>${live.map(placar).join('')}`
       : `<div class="pub-card"><h3>Nenhum jogo em quadra agora</h3>
-          <p style="color:var(--txt-2);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui sozinho — sem precisar atualizar a página.</p></div>`}
+          <p style="color:var(--txt-2);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui sozinho, sem precisar atualizar a página.</p></div>`}
       ${prox.length ? `<div class="sec-cap">Próximos jogos</div><div class="pub-card">
         ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:var(--txt-3)">x</span> ${esc(Q.teamShort(m.teamBId))}
           <small>${esc(nomeCat(m.tournamentId))}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
-          <div class="r">${esc(m.time || '—')}</div></div>`).join('')}</div>` : ''}
+          <div class="r">${esc(m.time || '-')}</div></div>`).join('')}</div>` : ''}
       ${ult.length ? `<div class="sec-cap">Últimos resultados</div><div class="pub-card">
         ${ult.map(m => `<div class="row-jogo"><div class="t">
           <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
@@ -3647,8 +4000,8 @@ function pubEvento(app, slug, aba) {
   if (aba === 'info') {
     corpo = `<div class="sec-cap">Informações</div>
       <div class="pub-card"><div class="pill-list">
-        <span class="pill"><b>organizador</b>${esc(org ? org.name : '—')}</span>
-        <span class="pill"><b>arena</b>${esc(arena ? arena.name : '—')}</span>
+        <span class="pill"><b>organizador</b>${esc(org ? org.name : '-')}</span>
+        <span class="pill"><b>arena</b>${esc(arena ? arena.name : '-')}</span>
         <span class="pill"><b>data</b>${esc(fmtDate(ev.date))}${ev.time ? ' · ' + esc(ev.time) : ''}</span>
         <span class="pill"><b>categorias</b>${cats.length}</span>
         <span class="pill"><b>inscrições</b>${inscritas}</span>
@@ -3720,11 +4073,11 @@ function pubAoVivo(t, ms) {
   };
   return `${ao.length ? `<div class="sec-cap">Partidas em andamento</div>${ao.map(placar).join('')}`
     : `<div class="pub-card"><h3>Nenhum jogo em quadra agora</h3>
-        <p style="color:var(--txt-2);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui automaticamente — sem precisar atualizar a página.</p></div>`}
+        <p style="color:var(--txt-2);margin:6px 0 0">Assim que o árbitro lançar um placar, ele aparece aqui automaticamente, sem precisar atualizar a página.</p></div>`}
     ${prox.length ? `<div class="sec-cap">Próximos jogos</div><div class="pub-card">
       ${prox.map(m => `<div class="row-jogo"><div class="t">${esc(Q.teamShort(m.teamAId))} <span style="color:var(--txt-3)">x</span> ${esc(Q.teamShort(m.teamBId))}
         <small>${esc(m.label)}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
-        <div class="r">${esc(m.time || '—')}</div></div>`).join('')}</div>` : ''}
+        <div class="r">${esc(m.time || '-')}</div></div>`).join('')}</div>` : ''}
     ${ult.length ? `<div class="sec-cap">Últimos resultados</div><div class="pub-card">
       ${ult.map(m => `<div class="row-jogo"><div class="t">
         <span class="${m.winnerId === m.teamAId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamAId))}</span>
@@ -3741,7 +4094,7 @@ function pubJogos(ms) {
       <span style="color:var(--txt-3)"> x </span>
       <span class="${m.winnerId === m.teamBId ? 'win-nm' : ''}">${esc(Q.teamShort(m.teamBId) || (m.bye ? 'sem adversário' : 'a definir'))}</span>
       <small>${esc(m.label)}${m.courtId ? ' · ' + esc(Q.courtName(m.courtId)) : ''}</small></div>
-      <div class="r">${m.status === 'finalizado' ? (m.bye ? '<span class="mut-s">passou direto</span>' : placarCor(m)) : m.status === 'andamento' ? '<span style="color:var(--vermelho)">● ao vivo</span>' : (m.time || '—')}</div></div>`).join('')}
+      <div class="r">${m.status === 'finalizado' ? (m.bye ? '<span class="mut-s">passou direto</span>' : placarCor(m)) : m.status === 'andamento' ? '<span style="color:var(--vermelho)">● ao vivo</span>' : (m.time || '-')}</div></div>`).join('')}
     </div>`).join('');
 }
 function pubClassificacao(t, ms) {
@@ -3777,10 +4130,10 @@ function pubParticipantes(t) {
 function pubInfo(t, org, arena) {
   return `<div class="sec-cap">Informações</div>
     <div class="pub-card"><div class="pill-list">
-      <span class="pill"><b>organizador</b>${esc(org ? org.name : '—')}</span>
-      <span class="pill"><b>arena</b>${esc(arena ? arena.name : '—')}</span>
+      <span class="pill"><b>organizador</b>${esc(org ? org.name : '-')}</span>
+      <span class="pill"><b>arena</b>${esc(arena ? arena.name : '-')}</span>
       <span class="pill"><b>data</b>${esc(fmtDate(t.date))}${t.time ? ' · ' + esc(t.time) : ''}</span>
-      <span class="pill"><b>categoria</b>${esc(t.category || '—')}</span>
+      <span class="pill"><b>categoria</b>${esc(t.category || '-')}</span>
       <span class="pill"><b>formato</b>Eliminatória dupla</span>
       ${t.fee ? `<span class="pill"><b>inscrição</b>R$ ${esc(t.fee)}</span>` : ''}
     </div>
@@ -3938,7 +4291,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 }
 (async function iniciar() {
   Nuvem.iniciarCfg();
-  if (!location.hash) location.hash = '#/login';
+  if (!location.hash) location.hash = '#/';
   if (Nuvem.ativo()) {
     $('#app').innerHTML = telaCarregando();
     try {
