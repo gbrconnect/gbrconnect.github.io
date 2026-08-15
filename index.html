@@ -70,8 +70,8 @@ input,select,textarea{font-family:inherit;font-size:14px}
   color:var(--coral);font-weight:700;margin-bottom:clamp(8px,1.8vh,16px)}
 .login-bullets{display:grid;gap:clamp(5px,0.9vh,9px);position:relative;z-index:2;
   margin-top:clamp(20px,4.2vh,44px);padding-top:clamp(14px,2.4vh,22px);border-top:1px solid rgba(255,255,255,.12)}
-.login-bullets div{display:flex;gap:10px;font-size:12.5px;color:rgba(255,255,255,.72);line-height:1.35}
-.login-bullets b{color:#fff;font-weight:700}
+.login-bullets div{display:flex;gap:10px;font-size:13px;color:rgba(255,255,255,.55);line-height:1.3;align-items:baseline}
+.login-bullets b{color:#fff;font-weight:700;margin-right:5px}
 .login-bullets i{width:6px;height:6px;border-radius:50%;background:var(--coral);margin-top:6px;flex:none}
 .login-cta{margin-top:22px;position:relative;z-index:2;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn-cta{background:var(--coral);border:none;color:#fff;padding:13px 22px;border-radius:12px;font-size:15px;
@@ -610,7 +610,7 @@ function toast(msg, type) {
 const DB_KEY = 'gbr_connect_db_v1';
 const SESS_KEY = 'gbr_connect_sessao';
 const TABLES = ['users', 'organizations', 'arenas', 'courts', 'athletes', 'teams', 'events', 'tournaments',
-  'tournament_categories', 'registrations', 'matches', 'ranking_points', 'logs'];
+  'tournament_categories', 'registrations', 'matches', 'ranking_points', 'dayuses', 'logs'];
 
 let DB = null;
 
@@ -763,6 +763,7 @@ const Q = {
   athletes: o => scoped('athletes', o),
   teams: o => scoped('teams', o),
   events: o => scoped('events', o),
+  dayuses: o => scoped('dayuses', o),
   tournaments: o => scoped('tournaments', o),
   matches: o => scoped('matches', o),
   points: o => scoped('ranking_points', o),
@@ -864,6 +865,7 @@ const COLS = {
   athletes: ['id', 'organization_id', 'code', 'name', 'photo', 'phone', 'instagram', 'category', 'status'],
   teams: ['id', 'organization_id', 'name', 'athlete1_id', 'athlete2_id'],
   events: ['id', 'organization_id', 'arena_id', 'name', 'slug', 'date', 'time', 'description', 'rules', 'banner', 'status'],
+  dayuses: ['id', 'organization_id', 'arena_id', 'name', 'slug', 'date', 'time', 'vagas', 'valor', 'observacao', 'status', 'lista'],
   tournaments: ['id', 'organization_id', 'event_id', 'arena_id', 'name', 'slug', 'sport', 'category', 'date', 'time', 'description', 'rules',
     'banner', 'format', 'max_teams', 'fee', 'status', 'points_config', 'standings', 'size', 'bracket_generated', 'finished_at'],
   registrations: ['id', 'organization_id', 'tournament_id', 'team_id', 'seed'],
@@ -875,8 +877,10 @@ const COLS = {
   logs: ['id', 'organization_id', 'user_id', 'user_name', 'role', 'action', 'detail', 'created_at']
 };
 const TAB_DE = { organizations: 'organizations', users: 'profiles', arenas: 'arenas', courts: 'courts', athletes: 'athletes',
-  teams: 'teams', events: 'events', tournaments: 'tournaments', matches: 'matches', ranking_points: 'ranking_points', logs: 'logs' };
-const ORDEM_SYNC = ['organizations', 'arenas', 'courts', 'athletes', 'teams', 'events', 'tournaments', 'matches', 'ranking_points', 'logs'];
+  teams: 'teams', events: 'events', tournaments: 'tournaments', matches: 'matches', ranking_points: 'ranking_points',
+  dayuses: 'dayuses', logs: 'logs' };
+const ORDEM_SYNC = ['organizations', 'arenas', 'courts', 'athletes', 'teams', 'events', 'tournaments', 'matches',
+  'ranking_points', 'dayuses', 'logs'];
 const BOOL_COLS = ['is_reset', 'bye', 'dead', 'bracket_generated', 'active'];
 
 const Nuvem = {
@@ -956,7 +960,7 @@ const Nuvem = {
       if (BOOL_COLS.includes(c)) v = !!v;
       if (v === null) {
         if (c === 'points_config' && tab === 'organizations') v = defaultPoints();
-        else if (c === 'photos') v = [];
+        else if (c === 'photos' || c === 'lista') v = [];
         else if (c === 'court_ids') v = [];
         else if (c === 'status') v = tab === 'matches' ? 'pendente' : 'ativo';
         else if (c === 'name' && tab === 'teams') v = '';
@@ -971,7 +975,7 @@ const Nuvem = {
     const novo = emptyDB();
     TABLES.forEach(t => novo[t] = []);
     const tabelas = [['organizations', 'organizations'], ['profiles', 'users'], ['arenas', 'arenas'], ['courts', 'courts'],
-      [this.logado() ? 'athletes' : 'athletes_publico', 'athletes'], ['teams', 'teams'], ['events', 'events'], ['tournaments', 'tournaments'],
+      [this.logado() ? 'athletes' : 'athletes_publico', 'athletes'], ['teams', 'teams'], ['events', 'events'], ['tournaments', 'tournaments'], ['dayuses', 'dayuses'],
       ['registrations', null], ['matches', 'matches'], ['ranking_points', 'ranking_points'], ['logs', 'logs']];
     let marca = this.marca;
     for (const [tab, alvo] of tabelas) {
@@ -1718,6 +1722,7 @@ function render() {
   window.scrollTo(0, 0);
   if (TelaoTimer) { clearTimeout(TelaoTimer); TelaoTimer = null; }
   // rotas públicas — nunca exigem login
+  if (p[0] === 'd') return pubDayUse(app, p[1]);
   if (p[0] === 'e') return pubEvento(app, p[1], p[2]);
   if (p[0] === 't') return pubTorneio(app, p[1], p[2]);
   if (p[0] === 'arena') return pubArena(app, p[1]);
@@ -1897,7 +1902,7 @@ function viewLanding(app) {
       <div class="lp-2col">
         <div>
           <div class="lp-eyebrow" data-anim="esq">O diferencial</div>
-          <h2 data-anim="esq" data-atraso="0.04">O evento acaba. Os dados ficam com você.</h2>
+          <h2 data-anim="esq" data-atraso="0.04">Cada etapa vira dado. Cada dado vira decisão.</h2>
           <p class="desc" data-anim="esq" data-atraso="0.08">Chaveamento qualquer site faz. Gestão é outra coisa:
             é você abrir a plataforma na segunda-feira e saber exatamente o que aconteceu no domingo,
             e o que fazer na próxima etapa.</p>
@@ -2016,13 +2021,13 @@ function viewLogin(app) {
       <div>
         <div class="eyebrow">Gestão inteligente de torneios</div>
         <h1>Todos os torneios, todos os dados, tudo conectado em <em>uma única gestão</em>.</h1>
-        <p>Plataforma completa para organizadores gerenciarem seus torneios o ano inteiro. Atletas, duplas, arenas, árbitros, rankings e histórico centralizados em um só lugar.</p>
-        <p class="destaque">Com placares atualizados em tempo real, em todas as quadras, durante cada evento.</p>
+        <p>Atletas, duplas, arenas, árbitros, rankings e histórico do seu circuito em um só lugar.</p>
         <div class="login-bullets">
-          <div><i></i><span><b>Gestão centralizada:</b> cadastre uma vez, use em todos os torneios do ano.</span></div>
-          <div><i></i><span><b>Tempo real:</b> árbitros marcando placares simultaneamente, quadra por quadra.</span></div>
-          <div><i></i><span><b>Ranking automático:</b> cada resultado soma no ranking anual do seu circuito.</span></div>
-          <div><i></i><span><b>Página pública ao vivo:</b> atletas e torcida acompanham pelo celular, sem login.</span></div>
+          <div><i></i><span><b>Gestão centralizada</b> o ano inteiro</span></div>
+          <div><i></i><span><b>Placar em tempo real</b> quadra por quadra</span></div>
+          <div><i></i><span><b>Ranking automático</b> a cada etapa</span></div>
+          <div><i></i><span><b>Página pública</b> sem login e sem app</span></div>
+          <div><i></i><span><b>Dados que decidem</b> a sua próxima etapa</span></div>
         </div>
       </div>
       <div class="login-stats">
@@ -2172,6 +2177,7 @@ const MENU_ORG = [
   { k: 'arenas', t: 'Arenas', i: '⬒', h: '#/org/arenas' },
   { k: 'atletas', t: 'Atletas', i: '✦', h: '#/org/atletas' },
   { k: 'quadras', t: 'Quadras', i: '▦', h: '#/org/quadras' },
+  { k: 'dayuse', t: 'Day Use', i: '☀', h: '#/org/dayuse' },
   { k: 'arbitros', t: 'Árbitros', i: '☗', h: '#/org/arbitros' },
   { k: 'duplas', t: 'Duplas', i: '❖', h: '#/org/duplas' },
   { k: 'ranking', t: 'Ranking', i: '★', h: '#/org/ranking' },
@@ -2527,7 +2533,8 @@ function bindFiltros() {
 }
 function viewOrg(app, page, params) {
   const P = {
-    dashboard: oDashboard, torneios: oEventos, evento: oEvento, torneio: oTorneio, arenas: oArenas, quadras: oQuadras, arbitros: oArbitros,
+    dashboard: oDashboard, torneios: oEventos, evento: oEvento, torneio: oTorneio, arenas: oArenas, quadras: oQuadras,
+    arbitros: oArbitros, dayuse: oDayUses, du: oDayUse, convites: oConvites,
     atletas: oAtletas, duplas: oDuplas, partidas: oPartidas, ranking: oRanking,
     estatisticas: oEstatisticas, configuracoes: oConfig
   };
@@ -2734,7 +2741,8 @@ function oAtletas(app) {
     </tbody></table></div></div>` : vazio('✦', 'Nenhum atleta na sua base', 'Cadastre os atletas uma vez: eles seguem entre torneios e arenas com o histórico preservado.',
       '<button class="btn btn-p" id="nv2">+ Cadastrar atleta</button>');
   shell(app, MENU_ORG, 'atletas', 'Meus atletas', esc(Sess.org().name),
-    `<button class="btn" id="import">Importar lista</button><button class="btn btn-p" id="nv">+ Novo atleta</button>`, html);
+    `<a class="btn btn-d" href="#/org/convites">Convidar para o evento</a>
+     <button class="btn" id="import">Importar lista</button><button class="btn btn-p" id="nv">+ Novo atleta</button>`, html);
   $('#nv').onclick = () => formAtleta(); if ($('#nv2')) $('#nv2').onclick = () => formAtleta();
   $$('[data-ed]').forEach(b => b.onclick = () => formAtleta(Q.one('athletes', b.dataset.ed)));
   $$('[data-del-atl]').forEach(b => b.onclick = () => excluirAtleta(b.dataset.delAtl));
@@ -2752,6 +2760,80 @@ function oAtletas(app) {
     toast(nomes.length + ' atletas cadastrados.', 'ok');
   }, 'Importar');
 }
+/* ---------- CONVITES: quem falta se inscrever ---------- */
+function atletasInscritos(eventId) {
+  const cats = Q.categorias(eventId);
+  const set = new Set();
+  cats.forEach(c => (c.teamIds || []).forEach(tid => {
+    const t = Q.team(tid);
+    if (t) { set.add(t.athlete1Id); set.add(t.athlete2Id); }
+  }));
+  return set;
+}
+function oConvites(app, params) {
+  const evs = Q.events().slice().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  if (!evs.length) {
+    shell(app, MENU_ORG, 'atletas', 'Convites', esc(Sess.org().name), '',
+      vazio('✉', 'Nenhum evento para convidar', 'Crie um evento primeiro. Aí eu mostro quem já se inscreveu e quem falta chamar.',
+        '<a class="btn btn-p" href="#/org/torneios">Ir para eventos</a>'));
+    return;
+  }
+  const hoje = today();
+  const futuros = evs.filter(e => String(e.date) >= hoje);
+  const evId = params[0] || (futuros[0] || evs[evs.length - 1]).id;
+  const ev = Q.event(evId) || evs[0];
+  const inscritos = atletasInscritos(ev.id);
+  const todos = Q.athletes().slice().sort((a, b) => a.name.localeCompare(b.name));
+  const dentro = todos.filter(a => inscritos.has(a.id));
+  const fora = todos.filter(a => !inscritos.has(a.id));
+  const cats = Q.categorias(ev.id);
+  const msg = a => `Fala ${a.name.split(' ')[0]}! Inscrições abertas para o ${ev.name}, na ${Q.arenaName(ev.arenaId)}, ` +
+    `dia ${fmtDate(ev.date)}${ev.time ? ' a partir das ' + ev.time : ''}.` +
+    (cats.length ? ` Categorias: ${cats.map(c => c.name).join(', ')}.` : '') +
+    ` Garanta sua vaga: ${linkEvento(ev)}`;
+  const html = `
+    <div class="card card-p mb22" style="padding:13px 16px"><div class="flexb" style="gap:12px">
+      <div><div class="mut-s" style="text-transform:uppercase;letter-spacing:.14em;font-weight:700">Evento</div>
+        <select class="inp" id="cv-ev" style="min-width:240px;margin-top:4px">
+          ${evs.map(e => `<option value="${e.id}" ${e.id === ev.id ? 'selected' : ''}>${esc(e.name)} · ${esc(fmtDate(e.date))}</option>`).join('')}
+        </select></div>
+      <a class="btn btn-s btn-d" href="#/e/${ev.slug}" target="_blank">Ver página do evento</a>
+    </div></div>
+    <div class="grid g3 tight mb22">
+      ${statCard('Já inscritos', dentro.length, 'em alguma categoria', 'v2')}
+      ${statCard('Faltam convidar', fora.length, 'do seu cadastro')}
+      ${statCard('Com WhatsApp', fora.filter(a => zapNumero(a.phone)).length, 'prontos para o convite', 'v3')}
+    </div>
+    <div class="card mb22"><div class="card-h"><h3>Ainda não estão inscritos</h3>
+      <input class="inp" id="cv-busca" placeholder="Buscar..." style="max-width:220px"></div>
+      ${fora.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Código</th><th>Atleta</th><th>WhatsApp</th><th></th></tr></thead>
+      <tbody id="cv-corpo">${fora.map(a => `<tr data-nome="${esc(semAcento(a.name + ' ' + codigoAtleta(a)))}">
+        <td class="num">${codigoAtleta(a)}</td>
+        <td><div class="person">${avatar(a.photo, a.name)}<div><b>${esc(a.name)}</b><span>${esc(a.category || '')}</span></div></div></td>
+        <td class="num">${a.phone ? esc(a.phone) : '<span class="mut-s">não informado</span>'}</td>
+        <td class="right nowrap">${zapNumero(a.phone)
+        ? `<a class="btn btn-s btn-p" target="_blank" href="${linkZap(a.phone, msg(a))}">Convidar</a>`
+        : `<button class="btn btn-s" data-tel="${a.id}">Adicionar telefone</button>`}</td></tr>`).join('')}
+      </tbody></table></div>` : `<div class="empty" style="padding:30px"><div class="ico">🎉</div>
+        <h3>Todo mundo já está inscrito</h3><p>Não sobrou ninguém do seu cadastro fora deste evento.</p></div>`}
+    </div>
+    <div class="card"><div class="card-h"><h3>Já inscritos</h3><span class="badge ok">${dentro.length}</span></div>
+      ${dentro.length ? `<div class="tbl-wrap"><table class="tbl"><tbody>
+        ${dentro.map(a => `<tr><td class="num" style="width:70px">${codigoAtleta(a)}</td>
+          <td><div class="person">${avatar(a.photo, a.name)}<b>${esc(a.name)}</b></div></td>
+          <td class="right"><span class="badge ok">inscrito</span></td></tr>`).join('')}
+      </tbody></table></div>` : '<div class="card-p mut">Ninguém inscrito ainda neste evento.</div>'}
+    </div>`;
+  shell(app, MENU_ORG, 'atletas', 'Convites', `${ev.name} · ${fmtDate(ev.date)}`,
+    `<a class="btn" href="#/org/atletas">← Atletas</a>`, html);
+  $('#cv-ev').onchange = e => go('#/org/convites/' + e.target.value);
+  if ($('#cv-busca')) $('#cv-busca').oninput = e => {
+    const v = semAcento(e.target.value);
+    $$('#cv-corpo tr').forEach(tr => tr.style.display = tr.dataset.nome.includes(v) ? '' : 'none');
+  };
+  $$('[data-tel]').forEach(b => b.onclick = () => formAtleta(Q.one('athletes', b.dataset.tel)));
+}
+
 /* ---------- DUPLAS ---------- */
 function formDupla(t) {
   const todos = Q.athletes().slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -2827,6 +2909,235 @@ function oDuplas(app) {
   $('#nv').onclick = () => formDupla(); if ($('#nv2')) $('#nv2').onclick = () => formDupla();
   $$('[data-ed]').forEach(b => b.onclick = () => formDupla(Q.one('teams', b.dataset.ed)));
   $$('[data-del-dup]').forEach(b => b.onclick = () => excluirDupla(b.dataset.delDup));
+}
+
+/* ---------------------------------------------------------------
+   DAY USE — lista de presença do dia, separada dos torneios
+--------------------------------------------------------------- */
+const semAcento = t => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function zapNumero(tel) {
+  const d = String(tel || '').replace(/\D/g, '');
+  if (d.length < 10) return '';
+  return d.length <= 11 ? '55' + d : d;
+}
+function linkZap(tel, texto) {
+  const n = zapNumero(tel);
+  return (n ? 'https://wa.me/' + n : 'https://wa.me/') + '?text=' + encodeURIComponent(texto);
+}
+function linkDayUse(d) { return location.href.split('#')[0] + '#/d/' + d.slug; }
+function textoDayUse(d) {
+  const linhas = [d.name];
+  if (d.time) linhas.push('A partir das ' + d.time + 'hs');
+  if (d.arenaId) linhas.push(Q.arenaName(d.arenaId));
+  linhas.push('');
+  const total = Math.max(Number(d.vagas) || 0, (d.lista || []).length);
+  for (let i = 0; i < total; i++) linhas.push((i + 1) + '- ' + (((d.lista || [])[i] || {}).nome || ''));
+  if (d.observacao) { linhas.push(''); linhas.push(d.observacao); }
+  linhas.push(''); linhas.push(linkDayUse(d));
+  return linhas.join('\n');
+}
+function formDayUse(d) {
+  const arenas = Q.arenas();
+  if (!arenas.length) { toast('Cadastre uma arena antes de criar um day use.', 'err'); formArena(); return; }
+  const campos = [
+    { k: 'name', label: 'Nome', req: true, val: d && d.name, ph: 'ex.: Day use de sábado' },
+    { k: 'arenaId', label: 'Arena', type: 'select', req: true, val: d && d.arenaId, opts: arenas.map(a => ({ v: a.id, t: a.name })) },
+    { k: 'date', label: 'Data', type: 'date', req: true, val: d ? d.date : today(), half: true },
+    { k: 'time', label: 'A partir das', type: 'time', val: d ? d.time : '09:00', half: true },
+    { k: 'vagas', label: 'Vagas', type: 'number', val: d ? d.vagas : 24, half: true },
+    { k: 'valor', label: 'Valor por pessoa (R$)', type: 'number', val: d && d.valor, half: true },
+    { k: 'status', label: 'Situação', type: 'select', val: d ? d.status : 'aberto', half: true, opts: [
+        { v: 'aberto', t: 'Lista aberta' }, { v: 'lotado', t: 'Lotado' }, { v: 'finalizado', t: 'Encerrado' }] },
+    { k: 'observacao', label: 'Observações', type: 'textarea', val: d && d.observacao, ph: 'ex.: levar bola, pagamento na hora' }
+  ];
+  formModal(d ? 'Editar day use' : 'Novo day use', campos, dd => {
+    if (d) { Object.assign(d, dd); log('day use', 'Editou ' + d.name); saveDB(); render(); toast('Day use salvo.', 'ok'); }
+    else {
+      const novo = { id: uid('du'), organizationId: Sess.orgId, ...dd, lista: [],
+        slug: slugUnico(dd.name + '-' + dd.date, DB.dayuses.map(x => x.slug)), createdAt: Date.now() };
+      DB.dayuses.push(novo); log('day use', 'Criou ' + novo.name); saveDB();
+      toast('Day use criado. Agora monte a lista.', 'ok'); go('#/org/du/' + novo.id);
+    }
+  }, d ? 'Salvar' : 'Criar day use');
+}
+function oDayUses(app) {
+  const ds = Q.dayuses().slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const html = ds.length ? `<div class="grid g3">${ds.map(d => {
+    const n = (d.lista || []).length, vagas = Number(d.vagas) || 0;
+    return `<div class="card"><div class="card-p">
+      <div class="flexb mb14"><span class="mut-s">${esc(fmtDate(d.date))}${d.time ? ' · ' + esc(d.time) : ''} · ${esc(Q.arenaName(d.arenaId))}</span>
+        ${statusBadge(d.status === 'lotado' ? 'inativo' : d.status === 'finalizado' ? 'finalizado' : 'aberto')}</div>
+      <h3 style="font-size:20px;text-transform:uppercase;margin-bottom:8px">${esc(d.name)}</h3>
+      <div class="flexb mb14"><span class="mut-s">${n}${vagas ? ' de ' + vagas : ''} ${n === 1 ? 'inscrito' : 'inscritos'}</span>
+        ${vagas && n >= vagas ? '<span class="badge off">lista cheia</span>' : vagas ? `<span class="badge ok">${vagas - n} ${vagas - n === 1 ? 'vaga' : 'vagas'}</span>` : ''}</div>
+      <div class="bar mb14"><i style="width:${vagas ? pct(n, vagas) : 0}%"></i></div>
+      <div class="btn-row"><a class="btn btn-s btn-p" href="#/org/du/${d.id}">Abrir lista</a>
+        <a class="btn btn-s btn-d" href="#/d/${d.slug}" target="_blank">Página pública</a></div></div></div>`;
+  }).join('')}</div>` : vazio('☀', 'Nenhum day use criado',
+    'O day use é a lista do dia livre na arena: quem vai jogar, em ordem de chegada. Fica separado dos torneios e do ranking.',
+    '<button class="btn btn-p" id="nv2">+ Criar day use</button>');
+  shell(app, MENU_ORG, 'dayuse', 'Day Use', esc(Sess.org().name), `<button class="btn btn-p" id="nv">+ Criar day use</button>`, html);
+  $('#nv').onclick = () => formDayUse(); if ($('#nv2')) $('#nv2').onclick = () => formDayUse();
+}
+function oDayUse(app, params) {
+  const d = Q.one('dayuses', params[0]);
+  if (!d) { toast('Day use não encontrado.', 'err'); go('#/org/dayuse'); return; }
+  d.lista = d.lista || [];
+  const vagas = Number(d.vagas) || 0, n = d.lista.length;
+  const total = Math.max(vagas, n);
+  const linhas = [];
+  for (let i = 0; i < total; i++) {
+    const p = d.lista[i];
+    const atleta = p && p.athleteId ? Q.athlete(p.athleteId) : null;
+    linhas.push(`<tr>
+      <td class="num" style="width:44px;color:var(--txt-3)">${i + 1}</td>
+      <td>${p ? `<div class="person">${avatar(atleta && atleta.photo, p.nome)}
+          <div><b>${esc(p.nome)}</b><span>${atleta ? codigoAtleta(atleta) + (atleta.phone ? ' · ' + esc(atleta.phone) : '') : (p.telefone ? esc(p.telefone) : 'não cadastrado')}</span></div></div>`
+      : '<span class="mut-s">vaga livre</span>'}</td>
+      <td class="right nowrap">${p ? `${p.telefone || (atleta && atleta.phone)
+        ? `<a class="btn btn-s" target="_blank" href="${linkZap(p.telefone || (atleta && atleta.phone),
+          'Fala ' + p.nome + '! Você está na lista do ' + d.name + ' (' + fmtDate(d.date) + '). ' + linkDayUse(d))}">WhatsApp</a>` : ''}
+        <button class="btn-x" data-sobe="${i}" title="Subir">↑</button>
+        <button class="btn-x" data-rm="${i}" title="Tirar da lista">✕</button>` : ''}</td></tr>`);
+  }
+  const html = `<div class="grid g4 tight mb22">
+      ${statCard('Na lista', n, vagas ? 'de ' + vagas + ' vagas' : '')}
+      ${statCard('Vagas livres', vagas ? Math.max(0, vagas - n) : '—', '', 'v2')}
+      ${statCard('Cadastrados', d.lista.filter(x => x.athleteId).length, 'vinculados a atletas', 'v3')}
+      ${statCard('Valor', d.valor ? 'R$ ' + esc(d.valor) : '—', 'por pessoa', 'v4')}</div>
+    <div class="card mb22"><div class="card-h"><h3>Lista do dia</h3>
+      <div class="btn-row">
+        <button class="btn btn-s" id="importar">Importar lista</button>
+        <button class="btn btn-s" id="convidar">Convidar atletas</button>
+        <button class="btn btn-s btn-d" id="copiar">Copiar para o grupo</button>
+        <button class="btn btn-s btn-p" id="add">+ Adicionar</button></div></div>
+      <div class="tbl-wrap"><table class="tbl"><tbody>${linhas.join('')}</tbody></table></div></div>
+    <div class="grid g2">
+      <div class="card"><div class="card-h"><h3>Divulgação</h3></div><div class="card-p center">
+        <div class="qr-box" style="border:1px solid var(--linha)"><canvas id="qr-canvas"></canvas></div>
+        <p class="mut mt14" style="max-width:36ch;margin-left:auto;margin-right:auto">A lista fica pública neste link. Quem abrir vê os nomes e quantas vagas sobraram.</p>
+        <div class="field"><input class="inp" readonly value="${esc(linkDayUse(d))}" onclick="this.select()"></div>
+        <div class="btn-row" style="justify-content:center"><button class="btn" id="copiar-link">Copiar link</button>
+          <button class="btn btn-d" id="baixar-qr">Baixar QR</button></div></div></div>
+      <div class="card"><div class="card-h"><h3>Mensagem pronta</h3></div><div class="card-p">
+        <div class="card card-p" style="background:var(--areia);box-shadow:none;font-size:13px;white-space:pre-wrap;max-height:280px;overflow:auto">${esc(textoDayUse(d))}</div>
+        <div class="btn-row mt14"><button class="btn btn-p" id="zap">Enviar no WhatsApp</button></div></div></div>
+    </div>`;
+  shell(app, MENU_ORG, 'dayuse', d.name, `${Q.arenaName(d.arenaId)} · ${fmtDate(d.date)}${d.time ? ' · a partir das ' + d.time : ''}`,
+    `<a class="btn" href="#/org/dayuse">← Voltar</a>
+     <a class="btn" href="#/d/${d.slug}" target="_blank">Página pública</a>
+     <button class="btn btn-d" id="ed">Editar</button>
+     <button class="btn btn-w" id="del">Excluir</button>`, html);
+  const salvar = () => { saveDB(); render(); };
+  $('#ed').onclick = () => formDayUse(d);
+  $('#del').onclick = () => confirmar('Excluir day use', `Excluir <b>${esc(d.name)}</b> e a lista dele?`, () => {
+    DB.dayuses = DB.dayuses.filter(x => x.id !== d.id); log('day use', 'Excluiu ' + d.name); saveDB(); go('#/org/dayuse'); render();
+  }, 'Excluir');
+  $$('[data-rm]').forEach(b => b.onclick = () => { d.lista.splice(Number(b.dataset.rm), 1); salvar(); });
+  $$('[data-sobe]').forEach(b => b.onclick = () => {
+    const i = Number(b.dataset.sobe); if (i === 0) return;
+    const t = d.lista[i]; d.lista[i] = d.lista[i - 1]; d.lista[i - 1] = t; salvar();
+  });
+  $('#add').onclick = () => modalAddDayUse(d);
+  $('#importar').onclick = () => modalImportarDayUse(d);
+  $('#convidar').onclick = () => modalConvidarDayUse(d);
+  $('#copiar').onclick = () => navigator.clipboard.writeText(textoDayUse(d))
+    .then(() => toast('Lista copiada. É só colar no grupo.', 'ok'), () => toast('Copie do quadro ao lado.', ''));
+  $('#copiar-link').onclick = () => navigator.clipboard.writeText(linkDayUse(d))
+    .then(() => toast('Link copiado.', 'ok'), () => toast(linkDayUse(d), ''));
+  $('#zap').onclick = () => window.open(linkZap('', textoDayUse(d)), '_blank');
+  if ($('#qr-canvas')) {
+    drawQR($('#qr-canvas'), linkDayUse(d), 6);
+    $('#baixar-qr').onclick = () => {
+      const a = document.createElement('a');
+      a.href = $('#qr-canvas').toDataURL('image/png'); a.download = 'dayuse-' + d.slug + '.png'; a.click();
+    };
+  }
+}
+function modalAddDayUse(d) {
+  const todos = Q.athletes().slice().sort((a, b) => a.name.localeCompare(b.name));
+  const naLista = new Set((d.lista || []).map(x => x.athleteId).filter(Boolean));
+  openModal('Adicionar à lista',
+    `<div class="field"><label>Nome</label><input class="inp" id="du-nome" placeholder="digite o nome" autocomplete="off"></div>
+     <div class="field"><label>Telefone (opcional)</label><input class="inp" id="du-tel" placeholder="47 99999-9999"></div>
+     <div class="hint">Não precisa estar cadastrado como atleta. Se aparecer na lista abaixo, é só clicar que já vincula.</div>
+     <div id="du-sug" style="max-height:34vh;overflow:auto;margin-top:12px"></div>`,
+    `<button class="btn" data-close="1">Fechar</button><button class="btn btn-p" id="du-add">Adicionar</button>`,
+    root => {
+      const pintar = () => {
+        const q = semAcento($('#du-nome').value);
+        const livres = todos.filter(a => !naLista.has(a.id))
+          .filter(a => !q || semAcento(a.name).includes(q) || String(a.code || '').includes(q)).slice(0, 40);
+        $('#du-sug').innerHTML = livres.map(a => `<div class="dp-i" data-pick="${a.id}">${avatar(a.photo, a.name)}
+          <div style="flex:1;min-width:0"><b>${esc(a.name)}</b>
+            <span class="mut-s"><span class="num">${codigoAtleta(a)}</span>${a.phone ? ' · ' + esc(a.phone) : ''}</span></div>
+          <span class="badge">adicionar</span></div>`).join('') ||
+          '<div class="mut-s" style="padding:12px;text-align:center">Nenhum atleta cadastrado com esse nome. Pode adicionar assim mesmo.</div>';
+        $$('[data-pick]', root).forEach(el => el.onclick = () => {
+          const a = Q.athlete(el.dataset.pick);
+          d.lista.push({ id: uid('p'), nome: a.name, athleteId: a.id, telefone: a.phone || '' });
+          naLista.add(a.id); saveDB(); render(); toast(a.name + ' entrou na lista.', 'ok'); closeModal();
+        });
+      };
+      $('#du-nome').oninput = pintar; pintar(); $('#du-nome').focus();
+      $('#du-add').onclick = () => {
+        const nome = $('#du-nome').value.trim();
+        if (!nome) { toast('Digite o nome.', 'err'); return; }
+        const igual = todos.find(a => semAcento(a.name) === semAcento(nome) && !naLista.has(a.id));
+        d.lista.push({ id: uid('p'), nome, athleteId: igual ? igual.id : null, telefone: $('#du-tel').value.trim() });
+        saveDB(); closeModal(); render(); toast(nome + ' entrou na lista.', 'ok');
+      };
+      $('#du-nome').addEventListener('keydown', e => { if (e.key === 'Enter') $('#du-add').click(); });
+    });
+}
+function modalImportarDayUse(d) {
+  openModal('Importar lista',
+    `<p class="mut" style="margin-top:0">Cole a lista do grupo do WhatsApp do jeito que ela está. O sistema entende linhas como
+      <b>1- Gustavo</b>, ignora as vagas vazias e tenta vincular quem já é atleta cadastrado.</p>
+     <div class="field"><label>Lista</label><textarea class="inp" id="imp-txt" style="min-height:220px"
+       placeholder="Day use de Sábado&#10;A partir das 09:00hs&#10;&#10;1- Gustavo&#10;2- J10&#10;3- Borinelli"></textarea></div>
+     <label class="chip" style="cursor:pointer"><input type="checkbox" id="imp-sub" checked style="margin-right:6px">Substituir a lista atual</label>`,
+    `<button class="btn" data-close="1">Cancelar</button><button class="btn btn-p" id="imp-go">Importar</button>`,
+    root => {
+      $('#imp-go').onclick = () => {
+        const txt = $('#imp-txt').value || '';
+        const atletas = Q.athletes();
+        const nomes = [];
+        txt.split('\n').forEach(l => {
+          const m = l.match(/^\s*(\d+)\s*[-–.)]\s*(.*)$/);
+          if (!m) return;
+          const nome = m[2].trim();
+          if (nome) nomes.push(nome);
+        });
+        if (!nomes.length) { toast('Não encontrei nomes numerados nessa lista.', 'err'); return; }
+        const novos = nomes.map(nome => {
+          const a = atletas.find(x => semAcento(x.name) === semAcento(nome));
+          return { id: uid('p'), nome, athleteId: a ? a.id : null, telefone: a ? (a.phone || '') : '' };
+        });
+        d.lista = $('#imp-sub').checked ? novos : (d.lista || []).concat(novos);
+        const vinc = novos.filter(x => x.athleteId).length;
+        log('day use', 'Importou ' + novos.length + ' nomes'); saveDB(); closeModal(); render();
+        toast(novos.length + ' nomes importados' + (vinc ? ', ' + vinc + ' vinculados a atletas' : '') + '.', 'ok');
+      };
+      $('#imp-txt').focus();
+    });
+}
+function modalConvidarDayUse(d) {
+  const naLista = new Set((d.lista || []).map(x => x.athleteId).filter(Boolean));
+  const nomesLista = new Set((d.lista || []).map(x => semAcento(x.nome)));
+  const fora = Q.athletes().filter(a => !naLista.has(a.id) && !nomesLista.has(semAcento(a.name)))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const msg = a => `Fala ${a.name.split(' ')[0]}! Vai ter ${d.name} na ${Q.arenaName(d.arenaId)}, ${fmtDate(d.date)}${d.time ? ' a partir das ' + d.time : ''}. ` +
+    `Quer entrar na lista? ${linkDayUse(d)}`;
+  openModal('Convidar para o day use',
+    fora.length ? `<p class="mut" style="margin-top:0">Atletas do seu cadastro que ainda não estão nesta lista.</p>
+      <div style="max-height:52vh;overflow:auto">${fora.map(a => `<div class="dp-i">
+        ${avatar(a.photo, a.name)}<div style="flex:1;min-width:0"><b>${esc(a.name)}</b>
+          <span class="mut-s">${a.phone ? esc(a.phone) : 'sem telefone'}</span></div>
+        ${a.phone ? `<a class="btn btn-s btn-p" target="_blank" href="${linkZap(a.phone, msg(a))}">Convidar</a>`
+        : '<span class="badge off">sem telefone</span>'}</div>`).join('')}</div>`
+      : '<p class="mut" style="margin:0">Todo mundo do seu cadastro já está na lista.</p>',
+    `<button class="btn" data-close="1">Fechar</button>`);
 }
 
 /* ---------- EVENTOS (o dia) e CATEGORIAS (cada chave) ---------- */
@@ -3924,6 +4235,43 @@ function pubNaoEncontrado(app, msg) {
   app.innerHTML = pubShell(`<div class="pub-hero"><div class="eyebrow">Ops</div><h1>Link não encontrado</h1>
     <p style="color:var(--txt-2)">${esc(msg)}</p></div>`);
 }
+function pubDayUse(app, slug) {
+  const d = DB.dayuses.find(x => x.slug === slug || x.id === slug);
+  if (!d) return pubNaoEncontrado(app, 'Confira o endereço com o organizador.');
+  const org = DB.organizations.find(o => o.id === d.organizationId);
+  const arena = DB.arenas.find(a => a.id === d.arenaId);
+  const lista = d.lista || [], vagas = Number(d.vagas) || 0;
+  const total = Math.max(vagas, lista.length);
+  const livres = vagas ? Math.max(0, vagas - lista.length) : null;
+  const linhas = [];
+  for (let i = 0; i < total; i++) {
+    const p = lista[i];
+    linhas.push(`<div class="row-jogo"><div class="t" style="display:flex;gap:12px;align-items:center">
+      <span class="num" style="color:var(--txt-3);min-width:24px">${i + 1}</span>
+      ${p ? `<b>${esc(p.nome)}</b>` : '<span class="mut-s">vaga livre</span>'}</div></div>`);
+  }
+  app.innerHTML = pubShell(`
+    <div class="pub-hero">
+      <div class="eyebrow">${esc(org ? org.name : '')} · ${esc(arena ? arena.name : '')}</div>
+      <h1>${esc(d.name)}</h1>
+      <div class="pub-meta">
+        ${d.status === 'finalizado' ? '<span class="m">Encerrado</span>'
+      : livres === 0 ? '<span class="m" style="background:rgba(210,50,31,.25)">Lista cheia</span>'
+        : '<span class="m" style="background:rgba(14,159,110,.3)">Lista aberta</span>'}
+        <span class="m">${esc(fmtDate(d.date))}${d.time ? ' · a partir das ' + esc(d.time) : ''}</span>
+        <span class="m">${lista.length}${vagas ? ' de ' + vagas : ''} na lista</span>
+        ${livres !== null && livres > 0 ? `<span class="m">${pl(livres, 'vaga')}</span>` : ''}
+        ${d.valor ? `<span class="m">R$ ${esc(d.valor)}</span>` : ''}</div>
+    </div>
+    <div class="sec-cap">Lista do dia</div>
+    <div class="pub-card" style="padding:6px 16px">${linhas.join('')}</div>
+    ${d.observacao ? `<div class="sec-cap">Observações</div>
+      <div class="pub-card"><p style="margin:0;white-space:pre-wrap;color:var(--txt-2)">${esc(d.observacao)}</p></div>` : ''}
+    ${arena ? `<div class="sec-cap">Onde é</div><div class="pub-card"><h3>${esc(arena.name)}</h3>
+      <p style="color:var(--txt-2);margin:6px 0 0">${esc([arena.address, arena.city, arena.state].filter(Boolean).join(' · ') || 'endereço não informado')}</p>
+      ${arena.phone ? `<p style="color:var(--txt-2);margin:4px 0 0">${esc(arena.phone)}</p>` : ''}</div>` : ''}`);
+}
+
 function pubEvento(app, slug, aba) {
   const ev = DB.events.find(x => x.slug === slug || x.id === slug);
   if (!ev) return pubNaoEncontrado(app, 'Confira o endereço com o organizador do evento.');
